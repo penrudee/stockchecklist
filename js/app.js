@@ -37,6 +37,7 @@ function refreshTable() {
           <th class="flag-cell">ได้รับแล้ว</th>
           <th class="flag-cell">สินค้าขาด</th>
           <th class="flag-cell">เลื่อนวันถัดไป</th>
+          <th>โน้ต / มัดจำ</th>
           <th>จัดการ</th>
         </tr>
       </thead>
@@ -57,6 +58,13 @@ function refreshTable() {
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="received" ${item.flags.received ? "checked" : ""}></td>
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="out_of_stock" ${item.flags.out_of_stock ? "checked" : ""}></td>
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="postpone"></td>
+        <td class="note-cell">
+          ${item.flags.note ? `<div class="note-text">📝 ${escapeHtml(item.flags.note)}</div>` : `<div class="empty-note">ยังไม่มีโน้ต</div>`}
+          ${item.flags.customer_name ? `<div>👤 ${escapeHtml(item.flags.customer_name)}</div>` : ""}
+          ${item.flags.deposit_amount > 0 ? `<div class="deposit-text">มัดจำ ฿${item.flags.deposit_amount}</div>` : ""}
+          <button class="ghost" data-action="note" data-id="${item.id}" style="margin-top:4px;">✏️ แก้โน้ต/มัดจำ</button>
+          ${item.flags.deposit_amount > 0 ? `<button class="ghost" data-action="print-receipt" data-id="${item.id}" style="margin-top:4px;">🧾 พิมพ์ใบเสร็จ</button>` : ""}
+        </td>
         <td class="row-actions">
           <button class="ghost" data-action="edit" data-id="${item.id}" data-name="${escapeHtml(item.name)}">✏️ แก้ไข</button>
           <button class="danger" data-action="delete" data-id="${item.id}">🗑️ ลบ</button>
@@ -122,6 +130,20 @@ function bindRowEvents() {
       if (url === null) return;
       setAffiliateUrl(id, url);
       refreshTable();
+    });
+  });
+
+  document.querySelectorAll('button[data-action="note"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      openNoteModal(id);
+    });
+  });
+
+  document.querySelectorAll('button[data-action="print-receipt"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      window.open(`receipt.html?id=${encodeURIComponent(id)}`, "_blank");
     });
   });
 
@@ -233,6 +255,41 @@ document.getElementById("btnClearFilter").addEventListener("click", () => {
   document.getElementById("filterDateTo").value = "";
   currentFilter = { nameFilter: null, dateFrom: null, dateTo: null };
   refreshTable();
+});
+
+// ---------- modal: โน้ต / มัดจำ ----------
+let noteModalItemId = null;
+const noteModalOverlay = document.getElementById("noteModalOverlay");
+
+function openNoteModal(id) {
+  const item = getItemById(id);
+  if (!item) return;
+  noteModalItemId = id;
+  document.getElementById("modalCustomerName").value = item.flags.customer_name || "";
+  document.getElementById("modalNote").value = item.flags.note || "";
+  document.getElementById("modalDeposit").value = item.flags.deposit_amount || 0;
+  noteModalOverlay.classList.remove("hidden");
+}
+
+function closeNoteModal() {
+  noteModalOverlay.classList.add("hidden");
+  noteModalItemId = null;
+}
+
+document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
+document.getElementById("modalSave").addEventListener("click", () => {
+  if (!noteModalItemId) return;
+  setNoteAndDeposit(noteModalItemId, {
+    customerName: document.getElementById("modalCustomerName").value,
+    note: document.getElementById("modalNote").value,
+    depositAmount: document.getElementById("modalDeposit").value,
+  });
+  closeNoteModal();
+  refreshTable();
+});
+// ปิด modal เมื่อคลิกพื้นหลังนอกกล่อง
+noteModalOverlay.addEventListener("click", (e) => {
+  if (e.target === noteModalOverlay) closeNoteModal();
 });
 
 // ---------- init ----------
