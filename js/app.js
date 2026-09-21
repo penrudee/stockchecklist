@@ -150,7 +150,6 @@ function bindRowEvents() {
   document.querySelectorAll("a.item-link").forEach((a) => {
     a.addEventListener("click", (e) => {
       const name = e.target.dataset.name;
-      // เปิดหน้าค้นหาสินค้า (public, ไม่ต้องล็อกอิน) ในแท็บใหม่ พร้อมใส่คำค้นหาอัตโนมัติ
       window.open(`shopee.html?q=${encodeURIComponent(name)}`, "_blank");
     });
   });
@@ -269,6 +268,7 @@ function openNoteModal(id) {
   document.getElementById("modalNote").value = item.flags.note || "";
   document.getElementById("modalDeposit").value = item.flags.deposit_amount || 0;
   noteModalOverlay.classList.remove("hidden");
+  document.getElementById("modalCustomerName").focus();
 }
 
 function closeNoteModal() {
@@ -276,20 +276,35 @@ function closeNoteModal() {
   noteModalItemId = null;
 }
 
-document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
-document.getElementById("modalSave").addEventListener("click", () => {
+function saveNoteModal() {
   if (!noteModalItemId) return;
   setNoteAndDeposit(noteModalItemId, {
-    customerName: document.getElementById("modalCustomerName").value,
-    note: document.getElementById("modalNote").value,
-    depositAmount: document.getElementById("modalDeposit").value,
+    customerName: document.getElementById("modalCustomerName").value.trim(),
+    note: document.getElementById("modalNote").value.trim(),
+    depositAmount: Number(document.getElementById("modalDeposit").value) || 0,
   });
   closeNoteModal();
   refreshTable();
-});
+}
+
+document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
+document.getElementById("modalSave").addEventListener("click", saveNoteModal);
+
 // ปิด modal เมื่อคลิกพื้นหลังนอกกล่อง
 noteModalOverlay.addEventListener("click", (e) => {
   if (e.target === noteModalOverlay) closeNoteModal();
+});
+
+// ปิด modal เมื่อกดปุ่ม Escape และบันทึกเมื่อกด Enter ในช่องกรอก
+document.addEventListener("keydown", (e) => {
+  if (noteModalOverlay.classList.contains("hidden")) return;
+  
+  if (e.key === "Escape") {
+    closeNoteModal();
+  } else if (e.key === "Enter" && e.target.tagName === "INPUT") {
+    e.preventDefault();
+    saveNoteModal();
+  }
 });
 
 // ---------- init ----------
