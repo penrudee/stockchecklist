@@ -35,6 +35,9 @@ function addItem(name) {
       received: false,
       out_of_stock: false,
       affiliate_url: null,
+      note: null,            // โน้ตสั้น เช่น "ลูกค้าสั่งจอง"
+      customer_name: null,   // ชื่อลูกค้า (ใช้ตอนพิมพ์ใบเสร็จมัดจำ)
+      deposit_amount: 0,     // ยอดมัดจำ (บาท)
     },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -76,6 +79,35 @@ function setAffiliateUrl(id, url) {
     item.updated_at = new Date().toISOString();
     saveAllItems(items);
   }
+}
+
+/**
+ * บันทึกโน้ตสั้น + ข้อมูลมัดจำ ของรายการสินค้าหนึ่งชิ้น
+ * @param {string} id
+ * @param {{note?: string, customerName?: string, depositAmount?: number}} data
+ */
+function setNoteAndDeposit(id, { note = "", customerName = "", depositAmount = 0 } = {}) {
+  const items = getAllItems();
+  const item = items.find((i) => i.id === id);
+  if (item) {
+    item.flags.note = note && note.trim() !== "" ? note.trim() : null;
+    item.flags.customer_name = customerName && customerName.trim() !== "" ? customerName.trim() : null;
+    item.flags.deposit_amount = Number(depositAmount) || 0;
+    item.updated_at = new Date().toISOString();
+    saveAllItems(items);
+  }
+}
+
+function getItemById(id) {
+  return getAllItems().find((i) => i.id === id) || null;
+}
+
+function getShopName() {
+  return localStorage.getItem("stock_shop_name") || "ร้านค้าของฉัน";
+}
+
+function setShopName(name) {
+  localStorage.setItem("stock_shop_name", name.trim() || "ร้านค้าของฉัน");
 }
 
 function postponeToNextDay(id) {

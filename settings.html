@@ -11,6 +11,7 @@
     <h1>⚙️ ตั้งค่า</h1>
     <nav>
       <a href="app.html">หน้าหลัก</a>
+      <a href="stats.html">สถิติ</a>
       <a href="settings.html">ตั้งค่า</a>
       <a href="shopee.html" target="_blank">หน้าค้นหาสินค้า</a>
       <a href="admin.html">Admin</a>
@@ -37,6 +38,15 @@
   </div>
 
   <div class="form-card">
+    <h2>ชื่อร้าน (แสดงบนใบเสร็จมัดจำ)</h2>
+    <label>ชื่อร้าน
+      <input id="shopNameInput" type="text" />
+    </label>
+    <div id="shopNameSuccess" class="success-msg" style="display:none;">บันทึกแล้ว</div>
+    <button id="btnSaveShopName">บันทึกชื่อร้าน</button>
+  </div>
+
+  <div class="form-card">
     <h2>สำรอง / กู้คืนข้อมูล</h2>
     <p style="font-size:0.85rem;color:#64748b;">
       ข้อมูลสินค้าทั้งหมดเก็บอยู่ใน browser นี้เท่านั้น (localStorage) — ถ้าเปลี่ยนเครื่อง/เปลี่ยน browser
@@ -56,6 +66,14 @@
   <script>
     document.getElementById("btnLogout").addEventListener("click", logout);
     document.getElementById("newUsername").value = getCurrentUsername();
+    document.getElementById("shopNameInput").value = getShopName();
+
+    document.getElementById("btnSaveShopName").addEventListener("click", () => {
+      setShopName(document.getElementById("shopNameInput").value);
+      const ok = document.getElementById("shopNameSuccess");
+      ok.style.display = "block";
+      setTimeout(() => (ok.style.display = "none"), 2000);
+    });
 
     document.getElementById("btnSaveCred").addEventListener("click", async () => {
       const u = document.getElementById("newUsername").value.trim();
