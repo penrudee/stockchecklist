@@ -258,17 +258,25 @@ document.getElementById("btnClearFilter").addEventListener("click", () => {
 
 // ---------- modal: โน้ต / มัดจำ ----------
 let noteModalItemId = null;
+let noteModalOpenedAt = 0;
 const noteModalOverlay = document.getElementById("noteModalOverlay");
+const noteModalBox = document.getElementById("noteModalBox");
 
 function openNoteModal(id) {
   const item = getItemById(id);
   if (!item) return;
   noteModalItemId = id;
+  noteModalOpenedAt = Date.now();
+
+  // reset ค่าทุกครั้งที่เปิด
   document.getElementById("modalCustomerName").value = item.flags.customer_name || "";
   document.getElementById("modalNote").value = item.flags.note || "";
-  document.getElementById("modalDeposit").value = item.flags.deposit_amount || 0;
+  document.getElementById("modalDeposit").value =
+    Number(item.flags.deposit_amount) > 0 ? item.flags.deposit_amount : "";
+
   noteModalOverlay.classList.remove("hidden");
-  document.getElementById("modalCustomerName").focus();
+  // focus ที่ช่องแรกหลัง render
+  setTimeout(() => document.getElementById("modalCustomerName").focus(), 50);
 }
 
 function closeNoteModal() {
@@ -276,35 +284,54 @@ function closeNoteModal() {
   noteModalItemId = null;
 }
 
-function saveNoteModal() {
+// ปุ่มยกเลิก
+document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
+
+// ปุ่มบันทึก
+document.getElementById("modalSave").addEventListener("click", () => {
   if (!noteModalItemId) return;
+  const depositRaw = document.getElementById("modalDeposit").value;
+  const depositNum = depositRaw === "" ? 0 : Math.max(0, Math.floor(Number(depositRaw) || 0));
+
   setNoteAndDeposit(noteModalItemId, {
     customerName: document.getElementById("modalCustomerName").value.trim(),
     note: document.getElementById("modalNote").value.trim(),
-    depositAmount: Number(document.getElementById("modalDeposit").value) || 0,
+    depositAmount: depositNum,
   });
   closeNoteModal();
   refreshTable();
-}
-
-document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
-document.getElementById("modalSave").addEventListener("click", saveNoteModal);
-
-// ปิด modal เมื่อคลิกพื้นหลังนอกกล่อง
-noteModalOverlay.addEventListener("click", (e) => {
-  if (e.target === noteModalOverlay) closeNoteModal();
 });
 
-// ปิด modal เมื่อกดปุ่ม Escape และบันทึกเมื่อกด Enter ในช่องกรอก
-document.addEventListener("keydown", (e) => {
-  if (noteModalOverlay.classList.contains("hidden")) return;
-  
-  if (e.key === "Escape") {
-    closeNoteModal();
-  } else if (e.key === "Enter" && e.target.tagName === "INPUT") {
-    e.preventDefault();
-    saveNoteModal();
+// ปิดเมื่อคลิกพื้นหลัง (ต้องเช็คว่าคลิกเริ่มที่ overlay จริง ไม่ใช่ลากจากในกล่องออกมา)
+noteModalOverlay.addEventListener("mousedown", (e) => {
+  if (e.target === noteModalOverlay) {
+    noteModalOverlay.dataset.clickedOnOverlay = "1";
+  } else {
+    delete noteModalOverlay.dataset.clickedOnOverlay;
   }
+});
+noteModalOverlay.addEventListener("mouseup", (e) => {
+  if (e.target === noteModalOverlay && noteModalOverlay.dataset.clickedOnOverlay === "1") {
+    closeNoteModal();
+  }
+  delete noteModalOverlay.dataset.clickedOnOverlay;
+});
+
+// ปิดด้วยปุ่ม Escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !noteModalOverlay.classList.contains("hidden")) {
+    closeNoteModal();
+  }
+});
+
+// กด Enter ในช่อง input เพื่อบันทึก (ยกเว้น textarea)
+["modalCustomerName", "modalNote", "modalDeposit"].forEach((id) => {
+  document.getElementById(id).addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("modalSave").click();
+    }
+  });
 });
 
 // ---------- init ----------

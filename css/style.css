@@ -129,15 +129,38 @@ a.item-link:hover { text-decoration: underline; }
   display: none !important;
 }
 
+/* ---------- note/deposit modal ---------- */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0,0,0,0.4);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+  z-index: 1000;              /* ⬅️ เพิ่มจาก 100 */
+  padding: 16px;              /* ⬅️ กันชนขอบบนมือถือ */
+  overflow-y: auto;
 }
+.modal-overlay.hidden { display: none; }
+
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;                /* ⬅️ responsive */
+  max-width: 360px;           /* ⬅️ จำกัดความกว้าง */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  position: relative;         /* ⬅️ สร้าง stacking context */
+  z-index: 1001;              /* ⬅️ ให้อยู่เหนือ overlay */
+  animation: modalFadeIn 0.15s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-box h2 { margin-top: 0; font-size: 1rem; }
+.modal-box label { display: block; font-size: 0.85rem; margin-bottom: 10px; }
+.modal-box input { width: 100%; margin-top: 4px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
