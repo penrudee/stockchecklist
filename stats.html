@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>สถิติสินค้า - จดบันทึกสินค้าขาด</title>
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .stats-controls {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+  }
+  .stats-controls label { font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px; }
+  select {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+  }
+  .stats-card {
+    background: white;
+    margin: 0 20px 20px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 16px 20px;
+  }
+  .stats-card h2 { margin-top: 0; font-size: 1rem; }
+  .rank-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 90px 70px;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .rank-badge {
+    font-weight: bold;
+    color: #64748b;
+  }
+  .rank-name { font-size: 0.9rem; }
+  .rank-bar-track {
+    grid-column: 1 / -1;
+    background: #eef2f7;
+    border-radius: 4px;
+    height: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .rank-bar-fill {
+    height: 100%;
+    background: #2563eb;
+  }
+  .rank-count { text-align: right; font-size: 0.85rem; color: #334155; }
+  .rank-percent { text-align: right; font-size: 0.85rem; color: #64748b; }
+  .no-data { color: #888; padding: 20px 0; text-align: center; }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>📊 สถิติการสั่งสินค้า</h1>
+    <nav>
+      <a href="app.html">หน้าหลัก</a>
+      <a href="stats.html">สถิติ</a>
+      <a href="settings.html">ตั้งค่า</a>
+      <a href="shopee.html" target="_blank">หน้าค้นหาสินค้า</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="btnLogout" class="ghost">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <div class="stats-controls">
+    <label>จากวันที่
+      <input id="statFrom" type="date" />
+    </label>
+    <label>ถึงวันที่
+      <input id="statTo" type="date" />
+    </label>
+    <label>นับจาก
+      <select id="statBasis">
+        <option value="all">ทุกครั้งที่บันทึกรายการ</option>
+        <option value="ordered">เฉพาะที่ "สั่งซื้อแล้ว"</option>
+        <option value="received">เฉพาะที่ "ได้รับแล้ว"</option>
+        <option value="out_of_stock">เฉพาะที่ "สินค้าขาด"</option>
+      </select>
+    </label>
+    <button id="btnApply">แสดงผล</button>
+    <button id="btnQuick7" class="ghost">7 วันล่าสุด</button>
+    <button id="btnQuick30" class="ghost">30 วันล่าสุด</button>
+    <button id="btnQuickAll" class="ghost">ทั้งหมด</button>
+  </div>
+
+  <div class="stats-card">
+    <h2 id="statsSummary">Top 10 สินค้า</h2>
+    <div id="rankList"></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>requireAuth();</script>
+  <script src="js/storage.js"></script>
+  <script src="js/stats.js"></script>
+  <script>
+    document.getElementById("btnLogout").addEventListener("click", logout);
+
+    function todayStr() { return new Date().toISOString().slice(0, 10); }
+    function daysAgoStr(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0, 10);
+    }
+    function escapeHtml(s) {
+      const div = document.createElement("div");
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function render() {
+      const dateFrom = document.getElementById("statFrom").value || null;
+      const dateTo = document.getElementById("statTo").value || null;
+      const basis = document.getElementById("statBasis").value;
+
+      const { totalInRange, ranked } = computeTopProductStats({ dateFrom, dateTo, basis, limit: 10 });
+
+      const rangeLabel = dateFrom || dateTo
+        ? `${dateFrom || "เริ่มต้น"} ถึง ${dateTo || "ปัจจุบัน"}`
+        : "ทั้งหมดทุกช่วงเวลา";
+      document.getElementById("statsSummary").textContent =
+        `Top 10 สินค้า (${rangeLabel}) — รวม ${totalInRange} รายการที่นับ`;
+
+      const list = document.getElementById("rankList");
+      list.innerHTML = "";
+
+      if (ranked.length === 0) {
+        list.innerHTML = '<div class="no-data">ไม่มีข้อมูลในช่วงเวลานี้</div>';
+        return;
+      }
+
+      const maxCount = ranked[0].count;
+      ranked.forEach((r, idx) => {
+        const row = document.createElement("div");
+        row.innerHTML = `
+          <div class="rank-row">
+            <div class="rank-badge">#${idx + 1}</div>
+            <div class="rank-name">${escapeHtml(r.name)}</div>
+            <div class="rank-count">${r.count} ครั้ง</div>
+            <div class="rank-percent">${r.percent.toFixed(1)}%</div>
+            <div class="rank-bar-track">
+              <div class="rank-bar-fill" style="width:${(r.count / maxCount) * 100}%"></div>
+            </div>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    document.getElementById("btnApply").addEventListener("click", render);
+    document.getElementById("btnQuick7").addEventListener("click", () => {
+      document.getElementById("statFrom").value = daysAgoStr(7);
+      document.getElementById("statTo").value = todayStr();
+      render();
+    });
+    document.getElementById("btnQuick30").addEventListener("click", () => {
+      document.getElementById("statFrom").value = daysAgoStr(30);
+      document.getElementById("statTo").value = todayStr();
+      render();
+    });
+    document.getElementById("btnQuickAll").addEventListener("click", () => {
+      document.getElementById("statFrom").value = "";
+      document.getElementById("statTo").value = "";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
