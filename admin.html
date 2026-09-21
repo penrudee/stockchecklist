@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin - จัดการรายการสินค้า Shopee</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🛠️ Admin: จัดการ Catalog สินค้า</h1>
+    <nav>
+      <a href="app.html">หน้าหลัก</a>
+      <a href="settings.html">ตั้งค่า</a>
+      <a href="shopee.html" target="_blank">หน้าค้นหาสินค้า</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="btnLogout" class="ghost">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <div class="form-card" style="max-width:900px;">
+    <p style="font-size:0.85rem;color:#64748b;">
+      หน้านี้แก้ไข <b>products.json</b> ซึ่งเป็นไฟล์ที่หน้า "ค้นหาสินค้า" (public) ใช้แสดงผล<br />
+      เพราะเว็บนี้เป็น static site ไม่มี server เก็บข้อมูลกลาง การแก้ไขที่นี่จะ<b>ไม่ขึ้นบนเว็บจริงทันที</b> —
+      ต้องกด "Export products.json" แล้วนำไฟล์ไป replace ในโปรเจกต์ จากนั้น deploy ขึ้น Cloudflare Pages ใหม่อีกครั้ง
+    </p>
+    <button id="btnLoadCurrent" class="ghost">โหลดข้อมูลปัจจุบันจากเว็บ</button>
+    <button id="btnAddRow">➕ เพิ่มสินค้า</button>
+    <button id="btnExport">⬇️ Export products.json</button>
+    <label style="display:inline-block;margin-left:10px;">
+      นำเข้าไฟล์ json <input id="importFile" type="file" accept="application/json" style="min-width:auto;display:inline;" />
+    </label>
+  </div>
+
+  <div class="table-container">
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>ชื่อสินค้า</th>
+          <th>ราคา</th>
+          <th>รูปภาพ (URL)</th>
+          <th>ลิงก์ Affiliate</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="productTbody"></tbody>
+    </table>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>requireAuth();</script>
+  <script>
+    document.getElementById("btnLogout").addEventListener("click", logout);
+
+    let products = [];
+
+    function uuid() {
+      return "p-" + Math.random().toString(36).slice(2, 10);
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("productTbody");
+      tbody.innerHTML = "";
+      products.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="text" data-field="name" data-idx="${idx}" value="${escAttr(p.name)}" /></td>
+          <td><input type="text" data-field="price" data-idx="${idx}" value="${escAttr(p.price || "")}" style="min-width:80px;" /></td>
+          <td><input type="text" data-field="image" data-idx="${idx}" value="${escAttr(p.image || "")}" /></td>
+          <td><input type="text" data-field="affiliate_url" data-idx="${idx}" value="${escAttr(p.affiliate_url || "")}" /></td>
+          <td><button class="danger" data-action="remove" data-idx="${idx}">🗑️ ลบ</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      bindEvents();
+    }
+
+    function escAttr(s) {
+      return String(s).replace(/"/g, "&quot;");
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("#productTbody input[data-field]").forEach((input) => {
+        input.addEventListener("input", (e) => {
+          const idx = Number(e.target.dataset.idx);
+          const field = e.target.dataset.field;
+          products[idx][field] = e.target.value;
+        });
+      });
+      document.querySelectorAll('button[data-action="remove"]').forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const idx = Number(e.target.dataset.idx);
+          products.splice(idx, 1);
+          renderTable();
+        });
+      });
+    }
+
+    document.getElementById("btnAddRow").addEventListener("click", () => {
+      products.push({ id: uuid(), name: "", price: "", image: "", affiliate_url: "" });
+      renderTable();
+    });
+
+    document.getElementById("btnLoadCurrent").addEventListener("click", async () => {
+      try {
+        const res = await fetch("products.json", { cache: "no-store" });
+        products = await res.json();
+        renderTable();
+      } catch (e) {
+        alert("โหลดไม่สำเร็จ: " + e.message);
+      }
+    });
+
+    document.getElementById("btnExport").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(products, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "products.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("importFile").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          products = JSON.parse(reader.result);
+          renderTable();
+        } catch (err) {
+          alert("ไฟล์ไม่ถูกต้อง: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // โหลดข้อมูลปัจจุบันตอนเปิดหน้าอัตโนมัติ
+    document.getElementById("btnLoadCurrent").click();
+  </script>
+</body>
+</html>
