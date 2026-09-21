@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ตั้งค่า - จดบันทึกสินค้าขาด</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>⚙️ ตั้งค่า</h1>
+    <nav>
+      <a href="app.html">หน้าหลัก</a>
+      <a href="settings.html">ตั้งค่า</a>
+      <a href="shopee.html" target="_blank">หน้าค้นหาสินค้า</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="btnLogout" class="ghost">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <div class="form-card">
+    <h2>เปลี่ยนชื่อผู้ใช้ / รหัสผ่าน</h2>
+    <label>ชื่อผู้ใช้ใหม่
+      <input id="newUsername" type="text" />
+    </label>
+    <label>รหัสผ่านใหม่
+      <input id="newPassword" type="password" />
+    </label>
+    <label>ยืนยันรหัสผ่านใหม่
+      <input id="confirmPassword" type="password" />
+    </label>
+    <div id="credError" class="login-error" style="display:none;"></div>
+    <div id="credSuccess" class="success-msg" style="display:none;">บันทึกเรียบร้อย ครั้งต่อไปให้ใช้ข้อมูลใหม่ในการเข้าสู่ระบบ</div>
+    <button id="btnSaveCred">บันทึก</button>
+  </div>
+
+  <div class="form-card">
+    <h2>สำรอง / กู้คืนข้อมูล</h2>
+    <p style="font-size:0.85rem;color:#64748b;">
+      ข้อมูลสินค้าทั้งหมดเก็บอยู่ใน browser นี้เท่านั้น (localStorage) — ถ้าเปลี่ยนเครื่อง/เปลี่ยน browser
+      หรือล้างข้อมูลเว็บไซต์ จะหายไป ควรสำรองเป็นไฟล์เก็บไว้เป็นระยะ
+    </p>
+    <button id="btnBackup">💾 ดาวน์โหลดไฟล์สำรอง</button>
+    <br /><br />
+    <label>กู้คืนจากไฟล์สำรอง (.json)
+      <input id="restoreFile" type="file" accept="application/json" />
+    </label>
+    <div id="restoreMsg" class="success-msg" style="display:none;"></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>requireAuth();</script>
+  <script src="js/storage.js"></script>
+  <script>
+    document.getElementById("btnLogout").addEventListener("click", logout);
+    document.getElementById("newUsername").value = getCurrentUsername();
+
+    document.getElementById("btnSaveCred").addEventListener("click", async () => {
+      const u = document.getElementById("newUsername").value.trim();
+      const p = document.getElementById("newPassword").value;
+      const c = document.getElementById("confirmPassword").value;
+      const err = document.getElementById("credError");
+      const ok = document.getElementById("credSuccess");
+      err.style.display = "none";
+      ok.style.display = "none";
+
+      if (!u) { err.textContent = "กรุณากรอกชื่อผู้ใช้"; err.style.display = "block"; return; }
+      if (p.length < 4) { err.textContent = "รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร"; err.style.display = "block"; return; }
+      if (p !== c) { err.textContent = "รหัสผ่านที่ยืนยันไม่ตรงกัน"; err.style.display = "block"; return; }
+
+      await changeCredentials(u, p);
+      ok.style.display = "block";
+      document.getElementById("newPassword").value = "";
+      document.getElementById("confirmPassword").value = "";
+    });
+
+    document.getElementById("btnBackup").addEventListener("click", exportBackup);
+
+    document.getElementById("restoreFile").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          importBackup(reader.result);
+          const msg = document.getElementById("restoreMsg");
+          msg.textContent = "กู้คืนข้อมูลเรียบร้อย กลับไปหน้าหลักเพื่อดูรายการ";
+          msg.style.display = "block";
+        } catch (err) {
+          alert("ไฟล์ไม่ถูกต้อง: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>

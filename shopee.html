@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ค้นหาสินค้า</title>
+<link rel="stylesheet" href="css/shopee-theme.css" />
+</head>
+<body>
+  <div class="shopee-navbar">
+    <div class="shopee-logo">🛒 ค้นหาสินค้า</div>
+    <div class="shopee-search-bar">
+      <input id="searchInput" type="text" placeholder="ค้นหาสินค้า..." autocomplete="off" />
+      <button id="btnSearch">ค้นหา</button>
+    </div>
+  </div>
+
+  <div class="shopee-container">
+    <div id="grid" class="shopee-grid"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">ไม่พบสินค้าที่ค้นหา</div>
+  </div>
+
+  <div class="shopee-footer-note">
+    หน้านี้เปิดให้ทุกคนเข้าถึงได้โดยไม่ต้องเข้าสู่ระบบ — คลิกสินค้าเพื่อไปที่ Shopee
+  </div>
+
+  <script>
+    let allProducts = [];
+
+    function escapeHtml(s) {
+      const div = document.createElement("div");
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function render(list) {
+      const grid = document.getElementById("grid");
+      const empty = document.getElementById("emptyState");
+      grid.innerHTML = "";
+      if (list.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      for (const p of list) {
+        const a = document.createElement("a");
+        a.className = "product-card";
+        a.href = p.affiliate_url || "#";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.innerHTML = `
+          <div class="product-image">
+            ${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" />` : "🛍️"}
+          </div>
+          <div class="product-info">
+            <div class="product-name">${escapeHtml(p.name)}</div>
+            ${p.price ? `<div class="product-price">฿${escapeHtml(p.price)}</div>` : ""}
+          </div>
+        `;
+        grid.appendChild(a);
+      }
+    }
+
+    function doSearch(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        render(allProducts);
+        return;
+      }
+      render(allProducts.filter((p) => p.name.toLowerCase().includes(q)));
+    }
+
+    document.getElementById("btnSearch").addEventListener("click", () => {
+      doSearch(document.getElementById("searchInput").value);
+    });
+    document.getElementById("searchInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doSearch(e.target.value);
+    });
+
+    async function init() {
+      try {
+        const res = await fetch("products.json", { cache: "no-store" });
+        allProducts = await res.json();
+      } catch (e) {
+        allProducts = [];
+      }
+
+      // ถ้ามี ?q= ใน URL (มาจากการกดชื่อสินค้าในหน้าจดบันทึก) ให้กรอกและค้นหาอัตโนมัติ
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("q");
+      if (q) {
+        document.getElementById("searchInput").value = q;
+        doSearch(q);
+      } else {
+        render(allProducts);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
