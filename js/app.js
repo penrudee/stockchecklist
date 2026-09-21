@@ -1,0 +1,239 @@
+let currentFilter = { nameFilter: null, dateFrom: null, dateTo: null };
+
+document.getElementById("whoami").textContent = "ผู้ใช้: " + getCurrentUsername();
+document.getElementById("btnLogout").addEventListener("click", logout);
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+}
+
+function escapeHtml(s) {
+  const div = document.createElement("div");
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function refreshTable() {
+  const groups = listItems(currentFilter);
+  const container = document.getElementById("tableContainer");
+  container.innerHTML = "";
+  if (groups.length === 0) {
+    container.innerHTML = "<p>ยังไม่มีรายการ</p>";
+  }
+  for (const group of groups) {
+    const wrap = document.createElement("div");
+    wrap.className = "day-group";
+    wrap.innerHTML = `<h2>${group.date}</h2>`;
+    const table = document.createElement("table");
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>สินค้า</th>
+          <th class="flag-cell">สั่งซื้อแล้ว</th>
+          <th class="flag-cell">ได้รับแล้ว</th>
+          <th class="flag-cell">สินค้าขาด</th>
+          <th class="flag-cell">เลื่อนวันถัดไป</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+    const tbody = table.querySelector("tbody");
+    for (const item of group.items) {
+      const hasAffiliate = !!(item.flags.affiliate_url && item.flags.affiliate_url.trim() !== "");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <a class="item-link" data-id="${item.id}" data-name="${escapeHtml(item.name)}" title="${hasAffiliate ? "เปิดลิงก์ affiliate" : "ค้นหาในหน้าค้นหาสินค้า"}">${escapeHtml(item.name)}</a>
+          <button class="ghost affiliate-btn" data-action="affiliate" data-id="${item.id}" data-current="${hasAffiliate ? escapeHtml(item.flags.affiliate_url) : ""}" title="ผูก/แก้ไขลิงก์ affiliate">
+            ${hasAffiliate ? "🔗" : "⛓️‍💥"}
+          </button>
+        </td>
+        <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="ordered" ${item.flags.ordered ? "checked" : ""}></td>
+        <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="received" ${item.flags.received ? "checked" : ""}></td>
+        <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="out_of_stock" ${item.flags.out_of_stock ? "checked" : ""}></td>
+        <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="postpone"></td>
+        <td class="row-actions">
+          <button class="ghost" data-action="edit" data-id="${item.id}" data-name="${escapeHtml(item.name)}">✏️ แก้ไข</button>
+          <button class="danger" data-action="delete" data-id="${item.id}">🗑️ ลบ</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+    wrap.appendChild(table);
+    container.appendChild(wrap);
+  }
+  bindRowEvents();
+  refreshSummary();
+}
+
+function bindRowEvents() {
+  document.querySelectorAll('input[type="checkbox"][data-flag]').forEach((cb) => {
+    cb.addEventListener("change", (e) => {
+      const id = e.target.dataset.id;
+      const flag = e.target.dataset.flag;
+      if (flag === "postpone") {
+        if (e.target.checked) {
+          postponeToNextDay(id);
+          refreshTable();
+        }
+        return;
+      }
+      setFlag(id, flag, e.target.checked);
+      refreshSummary();
+    });
+  });
+
+  document.querySelectorAll('button[data-action="delete"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      if (confirm("ยืนยันการลบรายการนี้?")) {
+        deleteItem(id);
+        refreshTable();
+      }
+    });
+  });
+
+  document.querySelectorAll('button[data-action="edit"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+      const oldName = e.target.dataset.name;
+      const newName = prompt("แก้ไขชื่อสินค้า:", oldName);
+      if (newName && newName.trim() !== "" && newName !== oldName) {
+        updateItemName(id, newName.trim());
+        refreshTable();
+      }
+    });
+  });
+
+  document.querySelectorAll('button[data-action="affiliate"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const button = e.target.closest("button");
+      const id = button.dataset.id;
+      const current = button.dataset.current || "";
+      const url = prompt(
+        "วางลิงก์ affiliate ของสินค้านี้ (จาก Shopee Affiliate Portal)\nเว้นว่างแล้วกด OK เพื่อลบลิงก์เดิม",
+        current
+      );
+      if (url === null) return;
+      setAffiliateUrl(id, url);
+      refreshTable();
+    });
+  });
+
+  document.querySelectorAll("a.item-link").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const name = e.target.dataset.name;
+      // เปิดหน้าค้นหาสินค้า (public, ไม่ต้องล็อกอิน) ในแท็บใหม่ พร้อมใส่คำค้นหาอัตโนมัติ
+      window.open(`shopee.html?q=${encodeURIComponent(name)}`, "_blank");
+    });
+  });
+}
+
+function refreshSummary() {
+  const s = summary();
+  document.getElementById("summaryText").textContent =
+    `รวมทั้งหมด ${s.totalItems} รายการ | สินค้าขาดที่ยังไม่ได้รับ ${s.totalMissingUnresolved} รายการ`;
+}
+
+// ---------- autocomplete ----------
+const searchOldInput = document.getElementById("searchOldInput");
+const searchSuggestions = document.getElementById("searchSuggestions");
+
+function renderSuggestions(container, names, onPick) {
+  container.innerHTML = "";
+  if (names.length === 0) {
+    container.classList.add("hidden");
+    return;
+  }
+  names.forEach((n) => {
+    const div = document.createElement("div");
+    div.textContent = n;
+    div.addEventListener("click", () => onPick(n));
+    container.appendChild(div);
+  });
+  container.classList.remove("hidden");
+}
+
+searchOldInput.addEventListener(
+  "input",
+  debounce((e) => {
+    const q = e.target.value.trim();
+    if (q.length === 0) {
+      searchSuggestions.classList.add("hidden");
+      currentFilter.nameFilter = null;
+      refreshTable();
+      return;
+    }
+    const names = autocompleteNames(q);
+    renderSuggestions(searchSuggestions, names, (name) => {
+      searchOldInput.value = name;
+      searchSuggestions.classList.add("hidden");
+      currentFilter.nameFilter = name;
+      refreshTable();
+    });
+  }, 150)
+);
+
+// ---------- สร้างรายการใหม่ ----------
+const btnNewItem = document.getElementById("btnNewItem");
+const newItemBox = document.getElementById("newItemBox");
+const newItemInput = document.getElementById("newItemInput");
+const newItemSuggestions = document.getElementById("newItemSuggestions");
+
+btnNewItem.addEventListener("click", () => {
+  newItemBox.classList.toggle("hidden");
+  if (!newItemBox.classList.contains("hidden")) newItemInput.focus();
+});
+
+newItemInput.addEventListener(
+  "input",
+  debounce((e) => {
+    const q = e.target.value.trim();
+    if (q.length === 0) {
+      newItemSuggestions.classList.add("hidden");
+      return;
+    }
+    const names = autocompleteNames(q);
+    renderSuggestions(newItemSuggestions, names, (name) => {
+      newItemInput.value = name;
+      newItemSuggestions.classList.add("hidden");
+    });
+  }, 150)
+);
+
+newItemInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const name = newItemInput.value.trim();
+    if (name === "") return;
+    addItem(name);
+    newItemInput.value = "";
+    newItemSuggestions.classList.add("hidden");
+    refreshTable();
+  }
+});
+
+// ---------- filter ----------
+document.getElementById("btnApplyFilter").addEventListener("click", () => {
+  currentFilter = {
+    nameFilter: document.getElementById("filterName").value.trim() || null,
+    dateFrom: document.getElementById("filterDateFrom").value || null,
+    dateTo: document.getElementById("filterDateTo").value || null,
+  };
+  refreshTable();
+});
+
+document.getElementById("btnClearFilter").addEventListener("click", () => {
+  document.getElementById("filterName").value = "";
+  document.getElementById("filterDateFrom").value = "";
+  document.getElementById("filterDateTo").value = "";
+  currentFilter = { nameFilter: null, dateFrom: null, dateTo: null };
+  refreshTable();
+});
+
+// ---------- init ----------
+refreshTable();
