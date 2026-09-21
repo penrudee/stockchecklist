@@ -1,9 +1,16 @@
 [
   {
-    "id": "sample-1",
-    "name": "ตัวอย่างสินค้า 1",
-    "price": "199",
-    "image": "",
-    "affiliate_url": "https://s.shopee.co.th/9fL3fkYWlt"
+    "id": "p-a0vtzajn",
+    "name": "โพลิเดนท์ ครีมติดฟันปลอม ปริมาณ20กรัม",
+    "price": "121",
+    "image": "https://down-th.img.susercontent.com/file/th-11134207-81zte-mloqlyks7coz7c@resize_w450_nl.webp",
+    "affiliate_url": "https://s.shopee.co.th/7fZzTWfazB"
+  },
+  {
+    "id": "p-a1vtzajn",
+    "name": "กล่องดักจิ้งจก สถานีดักจิ้งจก กาวดักจิ้งจก (1 สถานี ฟรี‼️แผ่นกาว 1 แผ่น/ชุด)",
+    "price": "30-73",
+    "image": "https://down-th.img.susercontent.com/file/sg-11134201-22100-m1bvc5vj12ivd2@resize_w450_nl.webp",
+    "affiliate_url": "https://s.shopee.co.th/3g3qiJrBgX"
   }
 ]
