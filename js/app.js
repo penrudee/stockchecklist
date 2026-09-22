@@ -1,3 +1,4 @@
+// js/app.js
 let currentFilter = { nameFilter: null, dateFrom: null, dateTo: null };
 
 document.getElementById("whoami").textContent = "ผู้ใช้: " + getCurrentUsername();
@@ -57,7 +58,9 @@ function refreshTable() {
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="ordered" ${item.flags.ordered ? "checked" : ""}></td>
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="received" ${item.flags.received ? "checked" : ""}></td>
         <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="out_of_stock" ${item.flags.out_of_stock ? "checked" : ""}></td>
-        <td class="flag-cell"><input type="checkbox" data-id="${item.id}" data-flag="postpone"></td>
+        <td class="flag-cell">
+          <button class="ghost postpone-btn" data-action="postpone" data-id="${item.id}" title="เลื่อนไปวันถัดไป (สร้างกลุ่มวันใหม่อัตโนมัติถ้ายังไม่มี)">⬆️</button>
+        </td>
         <td class="note-cell">
           ${item.flags.note ? `<div class="note-text">📝 ${escapeHtml(item.flags.note)}</div>` : `<div class="empty-note">ยังไม่มีโน้ต</div>`}
           ${item.flags.customer_name ? `<div>👤 ${escapeHtml(item.flags.customer_name)}</div>` : ""}
@@ -84,15 +87,16 @@ function bindRowEvents() {
     cb.addEventListener("change", (e) => {
       const id = e.target.dataset.id;
       const flag = e.target.dataset.flag;
-      if (flag === "postpone") {
-        if (e.target.checked) {
-          postponeToNextDay(id);
-          refreshTable();
-        }
-        return;
-      }
       setFlag(id, flag, e.target.checked);
       refreshSummary();
+    });
+  });
+
+  document.querySelectorAll('button[data-action="postpone"]').forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.target.closest("button").dataset.id;
+      postponeToNextDay(id);
+      refreshTable();
     });
   });
 
@@ -258,24 +262,19 @@ document.getElementById("btnClearFilter").addEventListener("click", () => {
 
 // ---------- modal: โน้ต / มัดจำ ----------
 let noteModalItemId = null;
-let noteModalOpenedAt = 0;
 const noteModalOverlay = document.getElementById("noteModalOverlay");
-const noteModalBox = document.getElementById("noteModalBox");
 
 function openNoteModal(id) {
   const item = getItemById(id);
   if (!item) return;
   noteModalItemId = id;
-  noteModalOpenedAt = Date.now();
 
-  // reset ค่าทุกครั้งที่เปิด
   document.getElementById("modalCustomerName").value = item.flags.customer_name || "";
   document.getElementById("modalNote").value = item.flags.note || "";
   document.getElementById("modalDeposit").value =
     Number(item.flags.deposit_amount) > 0 ? item.flags.deposit_amount : "";
 
   noteModalOverlay.classList.remove("hidden");
-  // focus ที่ช่องแรกหลัง render
   setTimeout(() => document.getElementById("modalCustomerName").focus(), 50);
 }
 
@@ -284,10 +283,8 @@ function closeNoteModal() {
   noteModalItemId = null;
 }
 
-// ปุ่มยกเลิก
 document.getElementById("modalCancel").addEventListener("click", closeNoteModal);
 
-// ปุ่มบันทึก
 document.getElementById("modalSave").addEventListener("click", () => {
   if (!noteModalItemId) return;
   const depositRaw = document.getElementById("modalDeposit").value;
@@ -302,7 +299,7 @@ document.getElementById("modalSave").addEventListener("click", () => {
   refreshTable();
 });
 
-// ปิดเมื่อคลิกพื้นหลัง (ต้องเช็คว่าคลิกเริ่มที่ overlay จริง ไม่ใช่ลากจากในกล่องออกมา)
+// ปิด modal เมื่อคลิกพื้นหลัง (เช็คว่าเริ่มคลิกที่ overlay จริง ไม่ใช่ลากจากในกล่องออกมา)
 noteModalOverlay.addEventListener("mousedown", (e) => {
   if (e.target === noteModalOverlay) {
     noteModalOverlay.dataset.clickedOnOverlay = "1";
@@ -317,14 +314,12 @@ noteModalOverlay.addEventListener("mouseup", (e) => {
   delete noteModalOverlay.dataset.clickedOnOverlay;
 });
 
-// ปิดด้วยปุ่ม Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !noteModalOverlay.classList.contains("hidden")) {
     closeNoteModal();
   }
 });
 
-// กด Enter ในช่อง input เพื่อบันทึก (ยกเว้น textarea)
 ["modalCustomerName", "modalNote", "modalDeposit"].forEach((id) => {
   document.getElementById(id).addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
