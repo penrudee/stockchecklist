@@ -1,7 +1,7 @@
 // ---------- ฐานข้อมูลสินค้าขาด: เก็บใน localStorage ของแต่ละ browser ----------
 // แต่ละ item เป็น object แบบยืดหยุ่น (schema-less) เพิ่ม field ใหม่ได้ในอนาคต
 // โดยไม่กระทบข้อมูลเก่า เพราะไม่มีการกำหนด schema ตายตัว
-
+// storage.js
 const ITEMS_KEY = "stock_items_v1";
 
 function uuid() {
@@ -12,8 +12,18 @@ function uuid() {
   });
 }
 
+// คืนค่าวันที่ "ปัจจุบันตามเวลาท้องถิ่นของเครื่องผู้ใช้" เป็น YYYY-MM-DD
+// (ห้ามใช้ toISOString() ตรง ๆ เพราะมันแปลงเป็น UTC ทำให้วันที่เพี้ยนได้
+//  สำหรับ timezone ที่ต่างจาก UTC เช่น ไทย UTC+7 ช่วงเที่ยงคืน-ตี 7)
+function dateToLocalStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${day}-${m}-${y}`;
+}
+
 function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+  return dateToLocalStr(new Date());
 }
 
 function getAllItems() {
@@ -114,9 +124,13 @@ function postponeToNextDay(id) {
   const items = getAllItems();
   const item = items.find((i) => i.id === id);
   if (item) {
-    const d = new Date(item.date + "T00:00:00");
-    d.setDate(d.getDate() + 1);
-    item.date = d.toISOString().slice(0, 10);
+    // แยก y/m/d จาก string เอง แล้วบวกวันด้วยเมธอด local (setDate/getDate)
+    // จากนั้นแปลงกลับเป็น string ด้วย dateToLocalStr (ไม่ผ่าน toISOString)
+    // เพื่อเลี่ยงปัญหา timezone offset ที่ทำให้วันที่ไม่ขยับ (เช่น UTC+7)
+    const [y, m, d] = item.date.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    dateObj.setDate(dateObj.getDate() + 1);
+    item.date = dateToLocalStr(dateObj);
     item.updated_at = new Date().toISOString();
     saveAllItems(items);
   }
