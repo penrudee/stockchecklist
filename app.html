@@ -47,24 +47,24 @@
   <main id="tableContainer" class="table-container"></main>
 
   <!-- Modal: โน้ตสั้น + มัดจำ -->
-<div id="noteModalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
-  <div class="modal-box" id="noteModalBox">
-    <h2 id="noteModalTitle">📝 โน้ต / มัดจำ</h2>
-    <label>ชื่อลูกค้า (ถ้ามี)
-      <input id="modalCustomerName" type="text" placeholder="เช่น คุณสมชาย" />
-    </label>
-    <label>โน้ตสั้น
-      <input id="modalNote" type="text" placeholder="เช่น ลูกค้าสั่งจอง" />
-    </label>
-    <label>ยอดมัดจำ (บาท)
-      <input id="modalDeposit" type="number" min="0" step="1" placeholder="0" inputmode="numeric" />
-    </label>
-    <div class="modal-actions">
-      <button id="modalSave">บันทึก</button>
-      <button id="modalCancel" class="ghost" type="button">ยกเลิก</button>
+  <div id="noteModalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+    <div class="modal-box" id="noteModalBox">
+      <h2 id="noteModalTitle">📝 โน้ต / มัดจำ</h2>
+      <label>ชื่อลูกค้า (ถ้ามี)
+        <input id="modalCustomerName" type="text" placeholder="เช่น คุณสมชาย" />
+      </label>
+      <label>โน้ตสั้น
+        <input id="modalNote" type="text" placeholder="เช่น ลูกค้าสั่งจอง" />
+      </label>
+      <label>ยอดมัดจำ (บาท)
+        <input id="modalDeposit" type="number" min="0" step="1" placeholder="0" inputmode="numeric" />
+      </label>
+      <div class="modal-actions">
+        <button id="modalSave">บันทึก</button>
+        <button id="modalCancel" class="ghost" type="button">ยกเลิก</button>
+      </div>
     </div>
   </div>
-</div>
 
   <footer class="footer">
     <span id="summaryText">กำลังโหลดสรุป...</span>
