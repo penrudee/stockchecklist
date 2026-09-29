@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A 2nd Brain - Stocklist</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/a2nd-brain.css">
+    <!-- Markdown Parser (Marked) & QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+</head>
+<body>
+
+    <!-- Header Toolbar -->
+    <header>
+        <div class="header-left">
+            <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <span class="brand-title">A 2nd Brain</span>
+        </div>
+
+        <div class="header-right">
+            <div class="autosave-status">
+                <span class="status-dot" id="save-dot"></span>
+                <span id="save-text">บันทึกแล้ว</span>
+            </div>
+
+            <!-- Sync Button (Stocklist Backup Integration) -->
+            <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </button>
+
+            <!-- QR Code Data Transfer Button -->
+            <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar Drawer & Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <span style="font-weight: 600; font-size: 0.95rem;">คลังความคิด (Folders)</span>
+                <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="folders-container">
+                <!-- Folders Category -->
+                <div class="folder-group">
+                    <div class="folder-title">
+                        <span>หมวดหมู่งาน</span>
+                    </div>
+
+                    <!-- 1. Urgent -->
+                    <div class="folder-item" data-folder="urgent">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-urgent);"></span>
+                            <span>งานเร่งด่วน</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-urgent"></div>
+
+                    <!-- 2. Longterm -->
+                    <div class="folder-item" data-folder="longterm">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-longterm);"></span>
+                            <span>งานต่อเนื่องระยะยาว</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-longterm"></div>
+
+                    <!-- 3. Resource Archive -->
+                    <div class="folder-item" data-folder="resources">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-archive);"></span>
+                            <span>คลังข้อมูล (Resources)</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-resources"></div>
+
+                    <!-- 4. Completed Archive -->
+                    <div class="folder-item" data-folder="completed">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-completed);"></span>
+                            <span>งานที่ทำสำเร็จแล้ว</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-completed"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace (Editor / Preview) -->
+        <main>
+            <div class="editor-toolbar">
+                <input type="text" id="note-title" class="title-input" placeholder="หัวข้อโน๊ต...">
+                
+                <div class="toggle-group">
+                    <button class="toggle-btn active" id="btn-mode-write">เขียน</button>
+                    <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
+                </div>
+            </div>
+
+            <div class="workspace">
+                <!-- Write Area -->
+                <textarea id="note-editor" class="editor-textarea" placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"></textarea>
+
+                <!-- Preview Area -->
+                <div id="note-preview" class="preview-container"></div>
+
+                <!-- Backlinks Section -->
+                <div class="backlinks-section" id="backlinks-container" style="display: none;">
+                    <div class="backlinks-title">🔗 ย้อนกลับมาเชื่อมโยงโน๊ตนี้ (Backlinks)</div>
+                    <div id="backlinks-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- QR Code Modal Popup -->
+    <div class="modal" id="qr-modal">
+        <div class="modal-content">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">โอนย้ายข้อมูลไปยังอุปกรณ์อื่น</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">สแกน QR Code เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น</p>
+            <div id="qrcode"></div>
+            <button class="toggle-btn active" style="width: 100%; margin-top: 1rem; padding: 10px;" id="close-qr-btn">ปิด</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // State Management
+        let notes = JSON.parse(localStorage.getItem('a2ndbrain_notes')) || [
+            {
+                id: '1',
+                title: 'แนวคิด A 2nd Brain',
+                folder: 'resources',
+                content: 'ระบบนี้ช่วยจัดเก็บความคิดตามหลัก CODE (Capture, Organize, Distill, Express)\n\nลองเชื่อมโยงไปที่ [[แผนการพัฒนาระบบ]] เพื่อทดสอบ Wiki Link'
+            },
+            {
+                id: '2',
+                title: 'แผนการพัฒนาระบบ',
+                folder: 'urgent',
+                content: '1. สร้างระบบบันทึกแบบ Mobile First\n2. รองรับ Wiki Link [[แนวคิด A 2nd Brain]]'
+            }
+        ];
+
+        let currentNoteId = '1';
+        let autoSaveTimer = null;
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const menuToggle = document.getElementById('menu-toggle');
+        const noteTitleInput = document.getElementById('note-title');
+        const noteEditor = document.getElementById('note-editor');
+        const notePreview = document.getElementById('note-preview');
+        const btnWrite = document.getElementById('btn-mode-write');
+        const btnPreview = document.getElementById('btn-mode-preview');
+        const saveDot = document.getElementById('save-dot');
+        const saveText = document.getElementById('save-text');
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNoteLists();
+            loadNote(currentNoteId);
+            setupEventListeners();
+        });
+
+        // Toggle Sidebar Drawer (Mobile)
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+        }
+
+        // Render Folder Notes List
+        function renderNoteLists() {
+            const folders = ['urgent', 'longterm', 'resources', 'completed'];
+            folders.forEach(f => {
+                const container = document.getElementById(`list-${f}`);
+                container.innerHTML = '';
+                const folderNotes = notes.filter(n => n.folder === f);
+                
+                folderNotes.forEach(note => {
+                    const div = document.createElement('div');
+                    div.className = `note-item ${note.id === currentNoteId ? 'active' : ''}`;
+                    div.textContent = note.title || 'ไม่มีชื่อ';
+                    div.onclick = () => {
+                        saveCurrentNote();
+                        currentNoteId = note.id;
+                        loadNote(note.id);
+                        renderNoteLists();
+                        if (window.innerWidth < 768) toggleSidebar();
+                    };
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        // Load Note Content
+        function loadNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            currentNoteId = id;
+            noteTitleInput.value = note.title;
+            noteEditor.value = note.content;
+            renderPreview();
+            renderBacklinks();
+        }
+
+        // Save Current Note with Autosave
+        function saveCurrentNote() {
+            const note = notes.find(n => n.id === currentNoteId);
+            if (note) {
+                note.title = noteTitleInput.value;
+                note.content = noteEditor.value;
+                localStorage.setItem('a2ndbrain_notes', JSON.stringify(notes));
+                triggerSaveStatus();
+                renderNoteLists();
+            }
+        }
+
+        function triggerSaveStatus() {
+            saveDot.classList.add('saving');
+            saveText.textContent = 'กำลังบันทึก...';
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                saveDot.classList.remove('saving');
+                saveText.textContent = 'บันทึกแล้ว';
+            }, 600);
+        }
+
+        // Wiki Link Parser: Transforms [[Note Title]] into clickable spans
+        function parseWikiLinks(text) {
+            return text.replace(/\[\[(.*?)\]\]/g, (match, p1) => {
+                return `<a class="wiki-link" onclick="navigateToNoteTitle('${p1}')">${p1}</a>`;
+            });
+        }
+
+        // Navigate by Wiki Link Click
+        window.navigateToNoteTitle = function(title) {
+            const targetNote = notes.find(n => n.title.trim().toLowerCase() === title.trim().toLowerCase());
+            if (targetNote) {
+                saveCurrentNote();
+                loadNote(targetNote.id);
+                renderNoteLists();
+            } else {
+                if (confirm(`ไม่พบโน๊ต "${title}" ต้องการสร้างใหม่หรือไม่?`)) {
+                    createNewNote(title);
+                }
+            }
+        };
+
+        // Render Markdown Preview & Parse Wiki Links
+        function renderPreview() {
+            const parsedMarkdown = marked.parse(noteEditor.value || '');
+            notePreview.innerHTML = parseWikiLinks(parsedMarkdown);
+        }
+
+        // Render Backlinks System
+        function renderBacklinks() {
+            const currentNote = notes.find(n => n.id === currentNoteId);
+            if (!currentNote || !currentNote.title) return;
+
+            const backlinksContainer = document.getElementById('backlinks-container');
+            const backlinksList = document.getElementById('backlinks-list');
+            backlinksList.innerHTML = '';
+
+            const wikiTag = `[[${currentNote.title}]]`;
+            const referringNotes = notes.filter(n => n.id !== currentNoteId && n.content.includes(wikiTag));
+
+            if (referringNotes.length > 0) {
+                backlinksContainer.style.display = 'block';
+                referringNotes.forEach(ref => {
+                    const card = document.createElement('div');
+                    card.className = 'backlink-card';
+                    card.textContent = `📄 ${ref.title}`;
+                    card.onclick = () => {
+                        saveCurrentNote();
+                        loadNote(ref.id);
+                        renderNoteLists();
+                    };
+                    backlinksList.appendChild(card);
+                });
+            } else {
+                backlinksContainer.style.display = 'none';
+            }
+        }
+
+        // Create New Note
+        function createNewNote(customTitle = '') {
+            const newId = Date.now().toString();
+            const newNote = {
+                id: newId,
+                title: customTitle || 'โน๊ตใหม่ไม่มีชื่อ',
+                folder: 'urgent',
+                content: ''
+            };
+            notes.push(newNote);
+            saveCurrentNote();
+            currentNoteId = newId;
+            loadNote(newId);
+            renderNoteLists();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            menuToggle.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+            
+            document.getElementById('new-note-btn').addEventListener('click', () => createNewNote());
+
+            // Autosave events
+            noteTitleInput.addEventListener('input', () => {
+                saveCurrentNote();
+            });
+            noteEditor.addEventListener('input', () => {
+                saveCurrentNote();
+                renderPreview();
+            });
+
+            // Toggle Mode Buttons
+            btnWrite.addEventListener('click', () => {
+                btnWrite.classList.add('active');
+                btnPreview.classList.remove('active');
+                noteEditor.style.display = 'block';
+                notePreview.style.display = 'none';
+            });
+
+            btnPreview.addEventListener('click', () => {
+                btnPreview.classList.add('active');
+                btnWrite.classList.remove('active');
+                renderPreview();
+                noteEditor.style.display = 'none';
+                notePreview.style.display = 'block';
+            });
+
+            // Sync with Stocklist Backup Mechanism
+            document.getElementById('sync-btn').addEventListener('click', () => {
+                // ซิงค์ข้อมูลกับ localStorage เดียวกันกับ stocklist
+                localStorage.setItem('stockchecklist_a2ndbrain_backup', JSON.stringify(notes));
+                alert('ซิงค์ข้อมูลกับคลังสำรอง Stocklist สำเร็จ!');
+            });
+
+            // QR Code Generator
+            document.getElementById('qr-btn').addEventListener('click', () => {
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
+                const jsonString = JSON.stringify(notes);
+                
+                // สร้าง QR Code จากข้อมูลโน๊ตทั้งหมด
+                QRCode.toCanvas(document.createElement('canvas'), jsonString, { width: 220 }, function (error, canvas) {
+                    if (error) {
+                        // กรณีข้อมูลเยอะเกินไป ให้ใส่ Link สำรองแทน
+                        QRCode.toCanvas(document.createElement('canvas'), window.location.href, { width: 220 }, function (err, fallbackCanvas) {
+                            qrContainer.appendChild(fallbackCanvas);
+                        });
+                    } else {
+                        qrContainer.appendChild(canvas);
+                    }
+                });
+                document.getElementById('qr-modal').classList.add('active');
+            });
+
+            document.getElementById('close-qr-btn').addEventListener('click', () => {
+                document.getElementById('qr-modal').classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>
