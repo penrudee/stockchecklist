@@ -464,20 +464,23 @@ textarea.editor-textarea {
     border: 1px solid var(--border-color);
     overflow: hidden;
 }
-#qrcode {
+.qr-wrapper {
+    width: 224px;
+    height: 224px;
     margin: 1.25rem auto;
     padding: 12px;
     background: #ffffff;
     border-radius: 12px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.qr-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* ป้องกันส่วนเกินล้นกรอบ */
-  width: 200px;
-  height: 200px;
+
+.qr-wrapper img,
+.qr-wrapper canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 /* Desktop Breakpoint Settings */
 @media (min-width: 768px) {

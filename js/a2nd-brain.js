@@ -376,47 +376,167 @@ function setupEventListeners() {
         });
     }
 
-    // QR Code Modal & Generator
+        // ==========================================
+    // BACKUP / IMPORT (ZIP)
+    // ==========================================
+    const backupMsg = document.getElementById('backup-message');
+    const setBackupMsg = (text, isError = false) => {
+        if (!backupMsg) return;
+        backupMsg.textContent = text;
+        backupMsg.style.color = isError ? 'var(--badge-urgent)' : 'var(--text-muted)';
+    };
+
+    const FOLDER_LABELS = {
+        urgent: 'Projects',
+        longterm: 'Areas',
+        resources: 'Resources',
+        completed: 'Archive'
+    };
+    const LABEL_TO_FOLDER = Object.fromEntries(
+        Object.entries(FOLDER_LABELS).map(([k, v]) => [v.toLowerCase(), k])
+    );
+
+    const safeName = s =>
+        ((s || 'ไม่มีชื่อ').replace(/[\\/:*?"<>|]/g, '-').trim().slice(0, 80)) || 'ไม่มีชื่อ';
+
+    // เปิด Modal
     const qrBtn = document.getElementById('qr-btn');
     if (qrBtn) {
         qrBtn.addEventListener('click', () => {
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = "";
-            if (!qrContainer) return;
-            qrContainer.innerHTML = '';
-
-            if (typeof QRCode !== 'undefined') {
-                const jsonString = JSON.stringify(notes);
-                try {
-                    new QRCode(qrContainer, {
-                        text: jsonString,
-                        width: 200,
-                        height: 200,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L
-                    });
-                } catch (e) {
-                    new QRCode(qrContainer, {
-                        text: window.location.href,
-                        width: 200,
-                        height: 200
-                    });
-                }
-            } else {
-                qrContainer.innerHTML = '<p style="color:red; font-size:0.8rem;">ไม่พบไลบรารี QRCode</p>';
-            }
-
-            const qrModal = document.getElementById('qr-modal');
-            if (qrModal) qrModal.classList.add('active');
+            setBackupMsg('');
+            document.getElementById('qr-modal')?.classList.add('active');
         });
     }
 
-    const closeQrBtn = document.getElementById('close-qr-btn');
-    if (closeQrBtn) {
-        closeQrBtn.addEventListener('click', () => {
-            const qrModal = document.getElementById('qr-modal');
-            if (qrModal) qrModal.classList.remove('active');
+    // ---------- ดาวน์โหลด ZIP ----------
+    const exportZipBtn = document.getElementById('export-zip-btn');
+    if (exportZipBtn) {
+        exportZipBtn.addEventListener('click', async () => {
+            if (typeof JSZip === 'undefined') {
+                setBackupMsg('ไม่พบไลบรารี JSZip (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)', true);
+                return;
+            }
+            try {
+                saveCurrentNote();
+                const zip = new JSZip();
+
+                // 1) ไฟล์หลักสำหรับนำเข้ากลับ
+                zip.file('notes.json', JSON.stringify({
+                    app: 'a2nd-brain',
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    notes
+                }, null, 2));
+
+                // 2) ไฟล์ .md แยกโฟลเดอร์ตาม PARA (เปิดอ่านหรือใช้กับ Obsidian ได้)
+                const usedPaths = new Set();
+                notes.forEach(n => {
+                    const dir = FOLDER_LABELS[n.folder] || 'Projects';
+                    const base = safeName(n.title);
+                    let path = `notes/${dir}/${base}.md`;
+                    let i = 2;
+                    while (usedPaths.has(path)) {
+                        path = `notes/${dir}/${base} (${i++}).md`;
+                    }
+                    usedPaths.add(path);
+                    zip.file(path, n.content || '');
+                });
+
+                const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `a2nd-brain-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                setBackupMsg(`สำรองข้อมูลสำเร็จ (${notes.length} โน๊ต)`);
+            } catch (err) {
+                console.error(err);
+                setBackupMsg('สำรองข้อมูลไม่สำเร็จ: ' + err.message, true);
+            }
+        });
+    }
+
+    // ---------- นำเข้าจาก ZIP ----------
+    const importZipBtn = document.getElementById('import-zip-btn');
+    const importZipFile = document.getElementById('import-zip-file');
+    if (importZipBtn && importZipFile) {
+        importZipBtn.addEventListener('click', () => importZipFile.click());
+
+        importZipFile.addEventListener('change', async () => {
+            const file = importZipFile.files[0];
+            if (!file) return;
+
+            if (typeof JSZip === 'undefined') {
+                setBackupMsg('ไม่พบไลบรารี JSZip', true);
+                return;
+            }
+
+            try {
+                const zip = await JSZip.loadAsync(file);
+                let incoming = [];
+
+                const jsonEntry = zip.file('notes.json');
+                if (jsonEntry) {
+                    // กรณีมี notes.json (ไฟล์ที่ส่งออกจากแอปนี้)
+                    const data = JSON.parse(await jsonEntry.async('string'));
+                    incoming = Array.isArray(data) ? data : (data.notes || []);
+                } else {
+                    // กรณีไม่มี notes.json: อ่านจากไฟล์ .md (เช่นโฟลเดอร์จาก Obsidian)
+                    const mdFiles = Object.values(zip.files)
+                        .filter(f => !f.dir && f.name.toLowerCase().endsWith('.md'));
+
+                    let seq = 0;
+                    for (const f of mdFiles) {
+                        const parts = f.name.split('/');
+                        const fileName = parts[parts.length - 1].replace(/\.md$/i, '');
+                        const folderKey = parts
+                            .slice(0, -1)
+                            .map(p => LABEL_TO_FOLDER[p.toLowerCase()])
+                            .find(Boolean) || 'resources';
+                        incoming.push({
+                            id: `${Date.now()}${seq++}`,
+                            title: fileName,
+                            folder: folderKey,
+                            content: await f.async('string')
+                        });
+                    }
+                }
+
+                if (!incoming.length) throw new Error('ไม่พบโน๊ตในไฟล์ ZIP นี้');
+
+                // รวมกับข้อมูลเดิม: ข้าม id ซ้ำ และข้ามชื่อซ้ำในโฟลเดอร์เดียวกัน
+                const existingIds = new Set(notes.map(n => String(n.id)));
+                const existingKeys = new Set(notes.map(n => `${n.folder}|${(n.title || '').trim().toLowerCase()}`));
+                let added = 0, skipped = 0;
+
+                incoming.forEach(n => {
+                    if (!n || typeof n.title !== 'string') { skipped++; return; }
+                    const id = String(n.id || `${Date.now()}${added}`);
+                    const folder = FOLDER_LABELS[n.folder] ? n.folder : 'urgent';
+                    const key = `${folder}|${n.title.trim().toLowerCase()}`;
+
+                    if (existingIds.has(id) || existingKeys.has(key)) { skipped++; return; }
+
+                    notes.push({ id, title: n.title, folder, content: String(n.content || '') });
+                    existingIds.add(id);
+                    existingKeys.add(key);
+                    added++;
+                });
+
+                localStorage.setItem('a2ndbrain_notes', JSON.stringify(notes));
+                renderNoteLists();
+                renderBacklinks();
+                setBackupMsg(`นำเข้าสำเร็จ: เพิ่ม ${added} โน๊ต, ข้าม ${skipped} (ซ้ำหรือข้อมูลไม่ถูกต้อง)`);
+            } catch (err) {
+                console.error(err);
+                setBackupMsg('นำเข้าไม่สำเร็จ: ' + err.message, true);
+            }
+
+            importZipFile.value = ''; // เลือกไฟล์เดิมซ้ำได้
         });
     }
 

@@ -9,14 +9,16 @@
   <!-- Fonts & External Libraries -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="css/a2nd-brain.css">
   <!--  -->
   <!-- Marked Markdown, QRCode & Vis.js Graph Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-
+  <!--zip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 
 <body>
@@ -161,19 +163,28 @@
     </main>
   </div>
 
-  <!-- QR Code Modal -->
+  <!-- Backup / Import Modal -->
   <div class="modal" id="qr-modal">
     <div class="modal-content">
-      <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">
-        โอนย้ายข้อมูลไปยังอุปกรณ์อื่น
-      </h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted)">
-        สแกน QR Code เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น
+      <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">สำรองและนำเข้าข้อมูล</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem">
+        ดาวน์โหลดโน๊ตทั้งหมดเป็นไฟล์ ZIP เพื่อเก็บสำรอง หรือนำไปเปิดบนอุปกรณ์อื่น
       </p>
-      <div class="qr-wrapper" id="qrcode"></div>
-      <button class="toggle-btn active" style="width: 100%; margin-top: 1rem; padding: 10px" id="close-qr-btn">
-        ปิด
+
+      <button class="toggle-btn active" id="export-zip-btn" style="width: 100%; padding: 12px">
+        ⬇️ ดาวน์โหลด ZIP สำรองข้อมูล
       </button>
+
+      <button class="toggle-btn" id="import-zip-btn"
+        style="width: 100%; padding: 12px; margin-top: 0.75rem; border: 1px solid var(--border-color)">
+        ⬆️ นำเข้าข้อมูลจาก ZIP
+      </button>
+      <input type="file" id="import-zip-file" accept=".zip,application/zip" hidden />
+
+      <p id="backup-message"
+        style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.85rem; min-height: 1.2em"></p>
+
+      <button class="toggle-btn" style="width: 100%; margin-top: 0.5rem; padding: 10px" id="close-qr-btn">ปิด</button>
     </div>
   </div>
 
