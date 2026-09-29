@@ -74,7 +74,7 @@
                     <div class="folder-item">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="folder-badge" style="background-color: var(--badge-urgent);"></span>
-                            <span>งานเร่งด่วน</span>
+                            <span>**Projects:** งานที่มีเป้าหมายและกำหนดส่งชัดเจน</span>
                         </div>
                     </div>
                     <div class="notes-list" id="list-urgent"></div>
@@ -82,7 +82,7 @@
                     <div class="folder-item">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="folder-badge" style="background-color: var(--badge-longterm);"></span>
-                            <span>งานต่อเนื่องระยะยาว</span>
+                            <span>**Areas:** หน้าที่หรือความรับผิดชอบระยะยาว</span>
                         </div>
                     </div>
                     <div class="notes-list" id="list-longterm"></div>
@@ -90,7 +90,7 @@
                     <div class="folder-item">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="folder-badge" style="background-color: var(--badge-archive);"></span>
-                            <span>คลังข้อมูล (Resources)</span>
+                            <span>**Resources:** หัวข้อที่สนใจและเก็บไว้ดูในอนาคต</span>
                         </div>
                     </div>
                     <div class="notes-list" id="list-resources"></div>
@@ -98,7 +98,7 @@
                     <div class="folder-item">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="folder-badge" style="background-color: var(--badge-completed);"></span>
-                            <span>งานที่ทำสำเร็จแล้ว</span>
+                            <span>**Archive:** ข้อมูลที่ยังไม่ใช้ตอนนี้แต่เก็บไว้ก่อน</span>
                         </div>
                     </div>
                     <div class="notes-list" id="list-completed"></div>
@@ -115,10 +115,10 @@
                 <div class="toolbar-bottom">
                     <!-- Dropdown ย้ายโฟลเดอร์ -->
                     <select id="folder-select" class="folder-select" title="ย้ายโฟลเดอร์">
-                        <option value="urgent">🔴 งานเร่งด่วน</option>
-                        <option value="longterm">🟡 งานต่อเนื่องระยะยาว</option>
-                        <option value="resources">🔵 คลังข้อมูล (Resources)</option>
-                        <option value="completed">🟢 งานที่ทำสำเร็จแล้ว</option>
+                        <option value="urgent">🔴 **Projects:** งานที่มีเป้าหมายและกำหนดส่งชัดเจน</option>
+                        <option value="longterm">🟡 **Areas:** หน้าที่หรือความรับผิดชอบระยะยาว</option>
+                        <option value="resources">🔵 **Resources:** หัวข้อที่สนใจและเก็บไว้ดูในอนาคต</option>
+                        <option value="completed">🟢 **Archive:** ข้อมูลที่ยังไม่ใช้ตอนนี้แต่เก็บไว้ก่อน</option>
                     </select>
 
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
