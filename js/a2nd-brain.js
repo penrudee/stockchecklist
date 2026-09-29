@@ -253,21 +253,21 @@
             });
 
             document.getElementById('qr-btn').addEventListener('click', () => {
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-                const jsonString = JSON.stringify(notes);
-                
-                QRCode.toCanvas(document.createElement('canvas'), jsonString, { width: 220 }, function (error, canvas) {
-                    if (error) {
-                        QRCode.toCanvas(document.createElement('canvas'), window.location.href, { width: 220 }, function (err, fallbackCanvas) {
-                            qrContainer.appendChild(fallbackCanvas);
-                        });
-                    } else {
-                        qrContainer.appendChild(canvas);
-                    }
-                });
-                document.getElementById('qr-modal').classList.add('active');
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    const jsonString = JSON.stringify(notes);
+    
+    QRCode.toCanvas(document.createElement('canvas'), jsonString, { width: 220 }, function (error, canvas) {
+        if (error) {
+            QRCode.toCanvas(document.createElement('canvas'), window.location.href, { width: 220 }, function (err, fallbackCanvas) {
+                qrContainer.appendChild(fallbackCanvas);
             });
+            } else {
+            qrContainer.appendChild(canvas);
+            }
+            });
+            document.getElementById('qr-modal').classList.add('active');
+        });
 
             document.getElementById('close-qr-btn').addEventListener('click', () => {
                 document.getElementById('qr-modal').classList.remove('active');
