@@ -558,7 +558,13 @@ function setupEventListeners() {
             }
         });
     }
-
+const closeQrBtn = document.getElementById('close-qr-btn');
+    if (closeQrBtn) {
+        closeQrBtn.addEventListener('click', () => {
+            const qrModal = document.getElementById('qr-modal');
+            if (qrModal) qrModal.classList.remove('active');
+        });
+    }
     const closeMapBtn = document.getElementById('close-map-btn');
     if (closeMapBtn) {
         closeMapBtn.addEventListener('click', () => {
