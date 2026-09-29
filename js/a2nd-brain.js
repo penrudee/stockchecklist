@@ -381,6 +381,7 @@ function setupEventListeners() {
     if (qrBtn) {
         qrBtn.addEventListener('click', () => {
             const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = "";
             if (!qrContainer) return;
             qrContainer.innerHTML = '';
 
