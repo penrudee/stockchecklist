@@ -25,252 +25,159 @@
   </head>
 
   <body>
-    <header>
-      <div class="header-left">
-        <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
-          <svg
-            width="24"
-            height="24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-        <span class="brand-title">A 2nd Brain</span>
-      </div>
 
-      <div class="header-right">
-        <div class="autosave-status">
-          <span class="status-dot" id="save-dot"></span>
-          <span id="save-text">บันทึกแล้ว</span>
+    <header>
+        <div class="header-left">
+            <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <span class="brand-title">A 2nd Brain</span>
         </div>
 
-        <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-        </button>
+        <div class="header-right">
+            <div class="autosave-status">
+                <span class="status-dot" id="save-dot"></span>
+                <span id="save-text">บันทึกแล้ว</span>
+            </div>
 
-        <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z"
-            />
-          </svg>
-        </button>
-      </div>
+            <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </button>
+
+            <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z"/>
+                </svg>
+            </button>
+        </div>
     </header>
 
     <div class="app-container">
-      <div class="sidebar-overlay" id="sidebar-overlay"></div>
-      <aside id="sidebar">
-        <div class="sidebar-header">
-          <span style="font-weight: 600; font-size: 0.95rem"
-            >คลังความคิด (Folders)</span
-          >
-          <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div class="folders-container">
-          <div class="folder-group">
-            <div class="folder-title">
-              <span>หมวดหมู่งาน</span>
-            </div>
-
-            <div class="folder-item">
-              <div style="display: flex; align-items: center; gap: 8px">
-                <span
-                  class="folder-badge"
-                  style="background-color: var(--badge-urgent)"
-                ></span>
-                <span>Projects</span>
-              </div>
-            </div>
-            <div class="notes-list" id="list-urgent"></div>
-
-            <div class="folder-item">
-              <div style="display: flex; align-items: center; gap: 8px">
-                <span
-                  class="folder-badge"
-                  style="background-color: var(--badge-longterm)"
-                ></span>
-                <span>Areas</span>
-              </div>
-            </div>
-            <div class="notes-list" id="list-longterm"></div>
-
-            <div class="folder-item">
-              <div style="display: flex; align-items: center; gap: 8px">
-                <span
-                  class="folder-badge"
-                  style="background-color: var(--badge-archive)"
-                ></span>
-                <span>Resources</span>
-              </div>
-            </div>
-            <div class="notes-list" id="list-resources"></div>
-
-            <div class="folder-item">
-              <div style="display: flex; align-items: center; gap: 8px">
-                <span
-                  class="folder-badge"
-                  style="background-color: var(--badge-completed)"
-                ></span>
-                <span>Archive</span>
-              </div>
-            </div>
-            <div class="notes-list" id="list-completed"></div>
-          </div>
-        </div>
-      </aside>
-
-      <main>
-        <div class="editor-toolbar">
-          <div class="toolbar-top">
-            <input
-              type="text"
-              id="note-title"
-              class="title-input"
-              placeholder="หัวข้อโน๊ต..."
-            />
-          </div>
-
-          <div class="toolbar-bottom">
-            <!-- Dropdown ย้ายโฟลเดอร์ -->
-            <select
-              id="folder-select"
-              class="folder-select"
-              title="ย้ายโฟลเดอร์"
-            >
-              <option value="urgent">
-                🔴 **Projects:** งานที่มีเป้าหมายและกำหนดส่งชัดเจน
-              </option>
-              <option value="longterm">
-                🟡 **Areas:** หน้าที่หรือความรับผิดชอบระยะยาว
-              </option>
-              <option value="resources">
-                🔵 **Resources:** หัวข้อที่สนใจและเก็บไว้ดูในอนาคต
-              </option>
-              <option value="completed">
-                🟢 **Archive:** ข้อมูลที่ยังไม่ใช้ตอนนี้แต่เก็บไว้ก่อน
-              </option>
-            </select>
-
-            <div style="display: flex; align-items: center; gap: 0.5rem">
-              <div class="toggle-group">
-                <button class="toggle-btn active" id="btn-mode-write">
-                  เขียน
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        
+        <!-- Sidebar Navigation Drawer -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <span style="font-weight: 600; font-size: 0.95rem;">คลังความคิด (Folders)</span>
+                <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
                 </button>
-                <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
-              </div>
-
-              <!-- ปุ่มลบโน๊ต -->
-              <button
-                class="icon-btn danger"
-                id="delete-note-btn"
-                title="ลบโน๊ตนี้"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
             </div>
-          </div>
-        </div>
 
-        <div class="workspace">
-          <textarea
-            id="note-editor"
-            class="editor-textarea"
-            placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"
-          ></textarea>
-          <div id="note-preview" class="preview-container"></div>
+            <!-- ลิงก์เข้าดู Brain Map บน Sidebar -->
+            <button class="sidebar-map-link" id="sidebar-map-btn">
+                <span>🧠</span>
+                <span>Brain Map (Graph View)</span>
+            </button>
 
-          <div
-            class="backlinks-section"
-            id="backlinks-container"
-            style="display: none"
-          >
-            <div class="backlinks-title">
-              🔗 ย้อนกลับมาเชื่อมโยงโน๊ตนี้ (Backlinks)
+            <div class="folders-container">
+                <div class="folder-group">
+                    <div class="folder-title">
+                        <span>หมวดหมู่งาน</span>
+                    </div>
+
+                    <div class="folder-item">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-urgent);"></span>
+                            <span>งานเร่งด่วน</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-urgent"></div>
+
+                    <div class="folder-item">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-longterm);"></span>
+                            <span>งานต่อเนื่องระยะยาว</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-longterm"></div>
+
+                    <div class="folder-item">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-archive);"></span>
+                            <span>คลังข้อมูล (Resources)</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-resources"></div>
+
+                    <div class="folder-item">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="folder-badge" style="background-color: var(--badge-completed);"></span>
+                            <span>งานที่ทำสำเร็จแล้ว</span>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="list-completed"></div>
+                </div>
             </div>
-            <div id="backlinks-list"></div>
-          </div>
-        </div>
-      </main>
+        </aside>
+
+        <!-- Workspace Main View -->
+        <main>
+            <div class="editor-toolbar">
+                <div class="toolbar-top">
+                    <input type="text" id="note-title" class="title-input" placeholder="หัวข้อโน๊ต...">
+                </div>
+                
+                <div class="toolbar-bottom">
+                    <select id="folder-select" class="folder-select" title="ย้ายโฟลเดอร์">
+                        <option value="urgent">🔴 งานเร่งด่วน</option>
+                        <option value="longterm">🟡 งานต่อเนื่องระยะยาว</option>
+                        <option value="resources">🔵 คลังข้อมูล (Resources)</option>
+                        <option value="completed">🟢 งานที่ทำสำเร็จแล้ว</option>
+                    </select>
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="btn-mode-write">เขียน</button>
+                            <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
+                        </div>
+
+                        <button class="icon-btn danger" id="delete-note-btn" title="ลบโน๊ตนี้">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workspace">
+                <textarea id="note-editor" class="editor-textarea" placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"></textarea>
+                <div id="note-preview" class="preview-container"></div>
+
+                <div class="backlinks-section" id="backlinks-container" style="display: none;">
+                    <div class="backlinks-title">🔗 ย้อนกลับมาเชื่อมโยงโน๊ตนี้ (Backlinks)</div>
+                    <div id="backlinks-list"></div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- QR Modal -->
+    <!-- QR Code Modal -->
     <div class="modal" id="qr-modal">
-      <div class="modal-content">
-        <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">
-          โอนย้ายข้อมูลไปยังอุปกรณ์อื่น
-        </h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted)">
-          สแกน QR Code เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น
-        </p>
-        <div id="qrcode"></div>
-        <button
-          class="toggle-btn active"
-          style="width: 100%; margin-top: 1rem; padding: 10px"
-          id="close-qr-btn"
-        >
-          ปิด
-        </button>
-      </div>
+        <div class="modal-content">
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">โอนย้ายข้อมูลไปยังอุปกรณ์อื่น</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">สแกน QR Code เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น</p>
+            <div id="qrcode"></div>
+            <button class="toggle-btn active" style="width: 100%; margin-top: 1rem; padding: 10px;" id="close-qr-btn">ปิด</button>
+        </div>
+    </div>
+
+    <!-- Brain Map Fullscreen View Modal -->
+    <div class="modal" id="map-modal">
+        <div class="modal-content" style="max-width: 92vw; height: 85vh; padding: 1rem; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h3 style="font-size: 1.1rem;">🧠 Knowledge Graph / Brain Map</h3>
+                <button class="icon-btn" id="close-map-btn" style="font-size: 1.2rem;">✕</button>
+            </div>
+            <div id="graph-container" style="flex: 1; width: 100%; background: #0f172a; border-radius: 12px; border: 1px solid var(--border-color);"></div>
+        </div>
     </div>
 
     <script src="js/a2nd-brain.js"></script>
