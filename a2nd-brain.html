@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A 2nd Brain - Stocklist</title>
-    
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/a2nd-brain.css">
     <!-- Markdown Parser (Marked) & QR Code Generator -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 </head>
+
 <body>
 
     <!-- Header Toolbar -->
@@ -22,7 +28,7 @@
         <div class="header-left">
             <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
             <span class="brand-title">A 2nd Brain</span>
@@ -37,14 +43,16 @@
             <!-- Sync Button (Stocklist Backup Integration) -->
             <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
             </button>
 
             <!-- QR Code Data Transfer Button -->
             <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z" />
                 </svg>
             </button>
         </div>
@@ -58,7 +66,7 @@
                 <span style="font-weight: 600; font-size: 0.95rem;">คลังความคิด (Folders)</span>
                 <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                 </button>
             </div>
@@ -113,7 +121,7 @@
         <main>
             <div class="editor-toolbar">
                 <input type="text" id="note-title" class="title-input" placeholder="หัวข้อโน๊ต...">
-                
+
                 <div class="toggle-group">
                     <button class="toggle-btn active" id="btn-mode-write">เขียน</button>
                     <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
@@ -122,7 +130,8 @@
 
             <div class="workspace">
                 <!-- Write Area -->
-                <textarea id="note-editor" class="editor-textarea" placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"></textarea>
+                <textarea id="note-editor" class="editor-textarea"
+                    placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"></textarea>
 
                 <!-- Preview Area -->
                 <div id="note-preview" class="preview-container"></div>
@@ -140,9 +149,11 @@
     <div class="modal" id="qr-modal">
         <div class="modal-content">
             <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">โอนย้ายข้อมูลไปยังอุปกรณ์อื่น</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">สแกน QR Code เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">สแกน QR Code
+                เพื่อนำคลังโน๊ตทั้งหมดไปเปิดบนสมาร์ทโฟนหรือเครื่องอื่น</p>
             <div id="qrcode"></div>
-            <button class="toggle-btn active" style="width: 100%; margin-top: 1rem; padding: 10px;" id="close-qr-btn">ปิด</button>
+            <button class="toggle-btn active" style="width: 100%; margin-top: 1rem; padding: 10px;"
+                id="close-qr-btn">ปิด</button>
         </div>
     </div>
 
@@ -199,7 +210,7 @@
                 const container = document.getElementById(`list-${f}`);
                 container.innerHTML = '';
                 const folderNotes = notes.filter(n => n.folder === f);
-                
+
                 folderNotes.forEach(note => {
                     const div = document.createElement('div');
                     div.className = `note-item ${note.id === currentNoteId ? 'active' : ''}`;
@@ -257,7 +268,7 @@
         }
 
         // Navigate by Wiki Link Click
-        window.navigateToNoteTitle = function(title) {
+        window.navigateToNoteTitle = function (title) {
             const targetNote = notes.find(n => n.title.trim().toLowerCase() === title.trim().toLowerCase());
             if (targetNote) {
                 saveCurrentNote();
@@ -326,7 +337,7 @@
         function setupEventListeners() {
             menuToggle.addEventListener('click', toggleSidebar);
             sidebarOverlay.addEventListener('click', toggleSidebar);
-            
+
             document.getElementById('new-note-btn').addEventListener('click', () => createNewNote());
 
             // Autosave events
@@ -366,12 +377,12 @@
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = '';
                 const jsonString = JSON.stringify(notes);
-                
+
                 // สร้าง QR Code จากข้อมูลโน๊ตทั้งหมด
-                QRCode.toCanvas(document.createElement('canvas'), jsonString, { width: 220 }, function (error, canvas) {
+                QRCode.toCanvas(document.createElement('canvas'), jsonString, {width: 220}, function (error, canvas) {
                     if (error) {
                         // กรณีข้อมูลเยอะเกินไป ให้ใส่ Link สำรองแทน
-                        QRCode.toCanvas(document.createElement('canvas'), window.location.href, { width: 220 }, function (err, fallbackCanvas) {
+                        QRCode.toCanvas(document.createElement('canvas'), window.location.href, {width: 220}, function (err, fallbackCanvas) {
                             qrContainer.appendChild(fallbackCanvas);
                         });
                     } else {
@@ -387,4 +398,5 @@
         }
     </script>
 </body>
+
 </html>
