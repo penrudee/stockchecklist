@@ -9,9 +9,7 @@
   <!-- Fonts & External Libraries -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/a2nd-brain.css">
   <!--  -->
   <!-- Marked Markdown, QRCode & Vis.js Graph Libraries -->
@@ -83,7 +81,7 @@
           <div class="folder-item">
             <div style="display: flex; align-items: center; gap: 8px">
               <span class="folder-badge" style="background-color: var(--badge-urgent)"></span>
-              <span>งานเร่งด่วน</span>
+              <span>Projects</span>
             </div>
           </div>
           <div class="notes-list" id="list-urgent"></div>
@@ -91,7 +89,7 @@
           <div class="folder-item">
             <div style="display: flex; align-items: center; gap: 8px">
               <span class="folder-badge" style="background-color: var(--badge-longterm)"></span>
-              <span>งานต่อเนื่องระยะยาว</span>
+              <span>Areas</span>
             </div>
           </div>
           <div class="notes-list" id="list-longterm"></div>
@@ -99,7 +97,7 @@
           <div class="folder-item">
             <div style="display: flex; align-items: center; gap: 8px">
               <span class="folder-badge" style="background-color: var(--badge-archive)"></span>
-              <span>คลังข้อมูล (Resources)</span>
+              <span>Resources</span>
             </div>
           </div>
           <div class="notes-list" id="list-resources"></div>
@@ -107,7 +105,7 @@
           <div class="folder-item">
             <div style="display: flex; align-items: center; gap: 8px">
               <span class="folder-badge" style="background-color: var(--badge-completed)"></span>
-              <span>งานที่ทำสำเร็จแล้ว</span>
+              <span>Archive</span>
             </div>
           </div>
           <div class="notes-list" id="list-completed"></div>
@@ -124,10 +122,10 @@
 
         <div class="toolbar-bottom">
           <select id="folder-select" class="folder-select" title="ย้ายโฟลเดอร์">
-            <option value="urgent">🔴 งานเร่งด่วน</option>
-            <option value="longterm">🟡 งานต่อเนื่องระยะยาว</option>
-            <option value="resources">🔵 คลังข้อมูล (Resources)</option>
-            <option value="completed">🟢 งานที่ทำสำเร็จแล้ว</option>
+            <option value="urgent">🔴 Projects-งานที่มีเป้าหมายและกำหนดส่งชัดเจน</option>
+            <option value="longterm">🟡 Areas-หน้าที่หรือความรับผิดชอบระยะยาว</option>
+            <option value="resources">🔵 Resources-หัวข้อที่สนใจและเก็บไว้ดูในอนาคต</option>
+            <option value="completed">🟢 Archive-ข้อมูลที่ยังไม่ใช้ตอนนี้แต่เก็บไว้ก่อน</option>
           </select>
 
           <div style="display: flex; align-items: center; gap: 0.5rem">
