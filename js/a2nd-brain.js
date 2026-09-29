@@ -64,9 +64,18 @@ window.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 });
 
+// ฟังก์ชัน Toggle ซ่อน/แสดง Sidebar (รองรับทั้ง Mobile & Desktop)
 function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    sidebarOverlay.classList.toggle('active');
+    if (!sidebar) return;
+    
+    if (window.innerWidth < 768) {
+        // สำหรับ Mobile / Tablet ( Drawer Slide )
+        sidebar.classList.toggle('open');
+        if (sidebarOverlay) sidebarOverlay.classList.toggle('active');
+    } else {
+        // สำหรับ Desktop ( Collapse Margin )
+        sidebar.classList.toggle('collapsed');
+    }
 }
 
 function renderNoteLists() {
@@ -86,6 +95,8 @@ function renderNoteLists() {
                 currentNoteId = note.id;
                 loadNote(note.id);
                 renderNoteLists();
+                
+                // ซ่อน sidebar อัตโนมัติเมื่อเลือกโน๊ตบนหน้าจอมือถือ
                 if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
                     toggleSidebar();
                 }
@@ -306,6 +317,7 @@ function generateBrainMap() {
 // 6. EVENT LISTENERS SETUP
 // ==========================================
 function setupEventListeners() {
+    // ปุ่ม Hamburger Menu สำหรับ Toggle ซ่อน/แสดง Sidebar
     if (menuToggle) menuToggle.addEventListener('click', toggleSidebar);
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', toggleSidebar);
 
@@ -314,27 +326,33 @@ function setupEventListeners() {
     if (newNoteBtn) newNoteBtn.addEventListener('click', () => createNewNote());
     if (deleteNoteBtn) deleteNoteBtn.addEventListener('click', deleteCurrentNote);
 
-    folderSelect.addEventListener('change', () => saveCurrentNote());
-    noteTitleInput.addEventListener('input', () => saveCurrentNote());
-    noteEditor.addEventListener('input', () => {
-        saveCurrentNote();
-        renderPreview();
-    });
+    if (folderSelect) folderSelect.addEventListener('change', () => saveCurrentNote());
+    if (noteTitleInput) noteTitleInput.addEventListener('input', () => saveCurrentNote());
+    if (noteEditor) {
+        noteEditor.addEventListener('input', () => {
+            saveCurrentNote();
+            renderPreview();
+        });
+    }
 
-    btnWrite.addEventListener('click', () => {
-        btnWrite.classList.add('active');
-        btnPreview.classList.remove('active');
-        noteEditor.style.display = 'block';
-        notePreview.style.display = 'none';
-    });
+    if (btnWrite) {
+        btnWrite.addEventListener('click', () => {
+            btnWrite.classList.add('active');
+            btnPreview.classList.remove('active');
+            noteEditor.style.display = 'block';
+            notePreview.style.display = 'none';
+        });
+    }
 
-    btnPreview.addEventListener('click', () => {
-        btnPreview.classList.add('active');
-        btnWrite.classList.remove('active');
-        renderPreview();
-        noteEditor.style.display = 'none';
-        notePreview.style.display = 'block';
-    });
+    if (btnPreview) {
+        btnPreview.addEventListener('click', () => {
+            btnPreview.classList.add('active');
+            btnWrite.classList.remove('active');
+            renderPreview();
+            noteEditor.style.display = 'none';
+            notePreview.style.display = 'block';
+        });
+    }
 
     // Cloud Sync Integration
     const syncBtn = document.getElementById('sync-btn');
@@ -388,7 +406,7 @@ function setupEventListeners() {
         });
     }
 
-    // Brain Map Modal & Event Listeners
+    // Brain Map Modal Listeners
     const mapBtn = document.getElementById('map-btn');
     if (mapBtn) {
         mapBtn.addEventListener('click', () => {
