@@ -1012,82 +1012,97 @@
       // 5. BRAIN MAP GENERATOR (VIS.JS)
       // ==========================================
       function generateBrainMap() {
-        const container = document.getElementById("graph-container");
-        if (!container || typeof vis === "undefined") return;
+    const container = document.getElementById('graph-container');
+    if (!container || typeof vis === 'undefined') return;
 
-        const nodes = [];
-        const edges = [];
-        const addedEdges = new Set();
+    // เคลียร์เนื้อหาเดิมใน container ก่อนวาดใหม่
+    container.innerHTML = '';
 
-        notes.forEach((note) => {
-          nodes.push({
+    const nodes = [];
+    const edges = [];
+    const addedEdges = new Set();
+
+    // 1. สร้าง Node จากโน๊ตทั้งหมด
+    notes.forEach(note => {
+        nodes.push({
             id: note.id,
-            label: note.title || "ไม่มีชื่อ",
-            shape: "dot",
-            size: 16,
+            label: note.title || 'ไม่มีชื่อ',
+            shape: 'dot',
+            size: 20,
             color: {
-              background: note.id === currentNoteId ? "#a855f7" : "#6366f1",
-              border: "#818cf8",
-              highlight: { background: "#ec4899", border: "#f472b6" },
+                background: note.id === currentNoteId ? '#ec4899' : '#6366f1',
+                border: '#818cf8',
+                highlight: { background: '#f472b6', border: '#ffffff' }
             },
-            font: { color: "#f8fafc", face: "Prompt" },
-          });
+            font: { color: '#f8fafc', face: 'Prompt', size: 14 }
         });
+    });
 
-        notes.forEach((sourceNote) => {
-          const matches = sourceNote.content.matchAll(/\[\[(.*?)\]\]/g);
-          for (const match of matches) {
+    // 2. ค้นหา [[ชื่อโน๊ต]] เพื่อโยงเส้น (Edges)
+    notes.forEach(sourceNote => {
+        if (!sourceNote.content) return;
+        
+        // ใช้ Regex จับคู่ [[...]]
+        const regex = /\[\[(.*?)\]\]/g;
+        let match;
+        
+        while ((match = regex.exec(sourceNote.content)) !== null) {
             const targetTitle = match[1].trim().toLowerCase();
-            const targetNote = notes.find(
-              (n) => n.title.trim().toLowerCase() === targetTitle,
-            );
+            const targetNote = notes.find(n => n.title.trim().toLowerCase() === targetTitle);
 
-            if (targetNote) {
-              const edgeKey = `${sourceNote.id}->${targetNote.id}`;
-              if (!addedEdges.has(edgeKey)) {
-                addedEdges.add(edgeKey);
-                edges.push({
-                  from: sourceNote.id,
-                  to: targetNote.id,
-                  color: {
-                    color: "rgba(255,255,255,0.25)",
-                    highlight: "#06b6d4",
-                  },
-                  arrows: "to",
-                });
-              }
+            if (targetNote && targetNote.id !== sourceNote.id) {
+                const edgeKey = `${sourceNote.id}->${targetNote.id}`;
+                if (!addedEdges.has(edgeKey)) {
+                    addedEdges.add(edgeKey);
+                    edges.push({
+                        from: sourceNote.id,
+                        to: targetNote.id,
+                        color: { color: '#06b6d4', highlight: '#a855f7' },
+                        arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+                        width: 2
+                    });
+                }
             }
-          }
-        });
+        }
+    });
 
-        const data = {
-          nodes: new vis.DataSet(nodes),
-          edges: new vis.DataSet(edges),
-        };
-        const options = {
-          physics: {
-            barnesHut: {
-              gravitationalConstant: -3000, // แก้ไขจาก gravConstant เป็น gravitationalConstant
-              springLength: 100,
-            },
-          },
-          interaction: { hover: true, zoomView: true, dragNodes: true },
-        };
+    const data = { 
+        nodes: new vis.DataSet(nodes), 
+        edges: new vis.DataSet(edges) 
+    };
 
-        const network = new vis.Network(container, data, options);
+    const options = {
+        physics: {
+            enabled: true,
+            barnesHut: { 
+                gravitationalConstant: -2000, 
+                centralGravity: 0.3,
+                springLength: 120 
+            }
+        },
+        interaction: { hover: true, zoomView: true, dragNodes: true }
+    };
 
-        // เมื่อคลิกจุด Node บน Graph Map ให้กระโดดเปิดโน๊ตนั้นทันที
-        network.on("click", function (params) {
-          if (params.nodes.length > 0) {
+    // สร้าง Network
+    const network = new vis.Network(container, data, options);
+
+    // ปรับมุมมองให้อยู่ตรงกลางอัตโนมัติ
+    network.once('afterDrawing', function() {
+        network.fit();
+    });
+
+    // เมื่อคลิกจุด Node บน Graph Map ให้กระโดดเปิดโน๊ตนั้นทันที
+    network.on("click", function (params) {
+        if (params.nodes.length > 0) {
             const clickedNoteId = params.nodes[0];
             saveCurrentNote();
             loadNote(clickedNoteId);
             renderNoteLists();
-            const mapModal = document.getElementById("map-modal");
-            if (mapModal) mapModal.classList.remove("active");
-          }
-        });
-      }
+            const mapModal = document.getElementById('map-modal');
+            if (mapModal) mapModal.classList.remove('active');
+        }
+    });
+}
 
       // ==========================================
       // 6. EVENT LISTENERS SETUP
