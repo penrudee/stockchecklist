@@ -1197,7 +1197,11 @@
             const mapModal = document.getElementById("map-modal");
             if (mapModal) {
               mapModal.classList.add("active");
-              generateBrainMap();
+
+              // ใช้ setTimeout เล็กน้อยเพื่อให้ Modal แสดงผล และ #graph-container คำนวณขนาด height/width จริงเสร็จก่อน
+              setTimeout(() => {
+                generateBrainMap();
+              }, 100);
             }
             if (window.innerWidth < 768 && sidebar.classList.contains("open")) {
               toggleSidebar();
