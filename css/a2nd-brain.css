@@ -31,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* Top Header Navigation */
         header {
             height: 56px;
             background: var(--sidebar-bg);
@@ -66,6 +65,14 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        .icon-btn.danger {
+            color: var(--badge-urgent);
+        }
+
+        .icon-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
         .brand-title {
             font-size: 1.1rem;
             font-weight: 700;
@@ -80,7 +87,6 @@
             gap: 0.5rem;
         }
 
-        /* Autosave Indicator */
         .autosave-status {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -108,7 +114,6 @@
             100% { opacity: 0.4; }
         }
 
-        /* Main Layout */
         .app-container {
             display: flex;
             flex: 1;
@@ -116,7 +121,6 @@
             overflow: hidden;
         }
 
-        /* Mobile Sidebar Drawer Overlay */
         .sidebar-overlay {
             position: absolute;
             inset: 0;
@@ -133,7 +137,6 @@
             pointer-events: auto;
         }
 
-        /* Sidebar Styling */
         aside {
             position: absolute;
             top: 0;
@@ -188,15 +191,8 @@
             justify-content: space-between;
             padding: 0.6rem 0.75rem;
             border-radius: 8px;
-            cursor: pointer;
             color: var(--text-muted);
             font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .folder-item:hover, .folder-item.active {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
         }
 
         .folder-badge {
@@ -227,7 +223,6 @@
             background: rgba(99, 102, 241, 0.15);
         }
 
-        /* Editor Area */
         main {
             flex: 1;
             display: flex;
@@ -237,12 +232,26 @@
             overflow: hidden;
         }
 
+        /* Toolbar with Folder Select & Controls */
         .editor-toolbar {
             padding: 0.75rem 1rem;
             display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toolbar-top {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
+            gap: 0.5rem;
+        }
+
+        .toolbar-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 0.5rem;
         }
 
@@ -256,7 +265,19 @@
             width: 100%;
         }
 
-        /* Mode Switcher Buttons */
+        /* Folder Switcher Dropdown */
+        .folder-select {
+            background: var(--sidebar-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+
         .toggle-group {
             display: flex;
             background: rgba(0, 0, 0, 0.3);
@@ -282,7 +303,6 @@
             font-weight: 600;
         }
 
-        /* Editor Body & Preview Area */
         .workspace {
             flex: 1;
             position: relative;
@@ -309,11 +329,6 @@
             color: var(--text-main);
         }
 
-        .preview-container h1, .preview-container h2, .preview-container h3 {
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
         .preview-container a.wiki-link {
             color: var(--accent-cyan);
             text-decoration: underline;
@@ -321,7 +336,6 @@
             font-weight: 500;
         }
 
-        /* Backlinks Section */
         .backlinks-section {
             margin-top: 2rem;
             padding-top: 1rem;
@@ -343,7 +357,6 @@
             cursor: pointer;
         }
 
-        /* Modal Popup for QR Code Transfer */
         .modal {
             display: none;
             position: fixed;
@@ -377,7 +390,6 @@
             display: inline-block;
         }
 
-        /* Responsive Breakpoints for Desktop */
         @media (min-width: 768px) {
             aside {
                 position: relative;
@@ -389,5 +401,13 @@
             }
             #menu-toggle {
                 display: none;
+            }
+            .editor-toolbar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .toolbar-top {
+                flex: 1;
             }
         }
