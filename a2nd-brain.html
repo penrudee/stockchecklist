@@ -162,7 +162,7 @@
       </div>
     </main>
   </div>
-  
+
   <!-- QR Code Modal -->
   <div class="modal" id="qr-modal">
     <div class="modal-content">
@@ -180,54 +180,42 @@
   </div>
 
   <!-- Brain Map Fullscreen View Modal -->
+  <!-- Brain Map Fullscreen View Modal -->
   <div class="modal" id="map-modal">
-    <div class="modal-content" style="
-          max-width: 92vw;
-          height: 85vh;
-          padding: 1rem;
-          display: flex;
-          flex-direction: column;
-        ">
-      <div style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-          ">
+    <div class="modal-content map-modal-content">
+
+      <!-- ส่วนหัว -->
+      <div class="map-header">
         <h3 style="font-size: 1.1rem">🧠 Knowledge Graph / Brain Map</h3>
-        <button class="icon-btn" id="close-map-btn" style="font-size: 1.2rem">
-          ✕
-        </button>
+        <button class="icon-btn" id="close-map-btn" style="font-size: 1.2rem">✕</button>
       </div>
-      <div id="graph-container" style="
-            flex: 1;
-            width: 100%;
-            background: #0f172a;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-          "></div>
+
+      <!-- พื้นที่กราฟ -->
+      <div class="graph-wrapper">
+        <div id="graph-container"></div>
+      </div>
+
     </div>
   </div>
-
   <!-- Footer Banner: Building a Second Brain Book Promotion -->
-<footer class="book-promo-footer">
+  <footer class="book-promo-footer">
     <div class="book-promo-container">
-        <div class="book-icon">📚</div>
-        <div class="book-info">
-            <span class="book-badge">แนะนำหนังสือ</span>
-            <p class="book-title">Building a Second Brain: สร้างสมองที่สอง เพื่อจัดระเบียบชีวิตและต่อยอดความคิด</p>
-            <p class="book-author">เขียนโดย <strong>Tiago Forte</strong> ผู้คิดค้นระบบ CODE Framework</p>
-        </div>
-        <a href="https://s.shopee.co.th/8AWT6912vc" target="_blank" rel="noopener noreferrer" class="book-buy-btn">
-            <span>สั่งซื้อ / อ่านเพิ่มเติม</span>
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-            </svg>
-        </a>
+      <div class="book-icon">📚</div>
+      <div class="book-info">
+        <span class="book-badge">แนะนำหนังสือ</span>
+        <p class="book-title">Building a Second Brain: สร้างสมองที่สอง เพื่อจัดระเบียบชีวิตและต่อยอดความคิด</p>
+        <p class="book-author">เขียนโดย <strong>Tiago Forte</strong> ผู้คิดค้นระบบ CODE Framework</p>
+      </div>
+      <a href="https://s.shopee.co.th/8AWT6912vc" target="_blank" rel="noopener noreferrer" class="book-buy-btn">
+        <span>สั่งซื้อ / อ่านเพิ่มเติม</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
     </div>
-</footer>
+  </footer>
 
-<script src="js/a2nd-brain.js"></script>
+  <script src="js/a2nd-brain.js"></script>
 </body>
 
 </html>

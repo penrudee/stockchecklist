@@ -424,7 +424,13 @@ textarea.editor-textarea {
 .modal.active {
     display: flex;
 }
-
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-shrink: 0;
+}
 .modal-content {
     background: var(--sidebar-bg);
     border: 1px solid var(--border-color);
@@ -434,7 +440,29 @@ textarea.editor-textarea {
     width: 100%;
     text-align: center;
 }
+.map-modal-content {
+    max-width: 92vw;
+    height: 85vh;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
 
+.graph-wrapper {
+    flex: 1;
+    min-height: 0;        /* สำคัญ: ให้ flex item หดได้ */
+    position: relative;
+}
+
+#graph-container {
+    position: absolute;
+    inset: 0;             /* กว้าง/สูงตาม wrapper เสมอ */
+    background: #0f172a;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
 #qrcode {
     margin: 1.25rem auto;
     padding: 12px;

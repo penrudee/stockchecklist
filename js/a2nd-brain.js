@@ -240,53 +240,52 @@ function renderBacklinks() {
 // ==========================================
 // 5. BRAIN MAP GENERATOR (FIXED VIS.JS LOOP)
 // ==========================================
+const normTitle = t => (t || '').replace(/\s+/g, ' ').trim().toLowerCase();
+
 function generateBrainMap() {
     const container = document.getElementById('graph-container');
-    if (!container || typeof vis === 'undefined') return;
+    if (!container || typeof vis === 'undefined') {
+        console.error('vis-network ยังไม่โหลด');
+        return;
+    }
 
-    // ทำลายกราฟเดิมทิ้งก่อนวาดใหม่ เพื่อป้องกัน Canvas ซ้อนทับกัน
-    if (networkInstance !== null) {
+    if (networkInstance) {
         networkInstance.destroy();
         networkInstance = null;
     }
 
-    const nodes = [];
+    // map ชื่อ -> note เพื่อค้นหาเร็วและทนต่อช่องว่าง
+    const titleMap = new Map();
+    notes.forEach(n => titleMap.set(normTitle(n.title), n));
+
+    const nodes = notes.map(note => ({
+        id: note.id,
+        label: note.title || 'ไม่มีชื่อ',
+        shape: 'dot',
+        size: 20,
+        color: {
+            background: note.id === currentNoteId ? '#ec4899' : '#6366f1',
+            border: '#818cf8',
+            highlight: { background: '#f472b6', border: '#ffffff' }
+        },
+        font: { color: '#f8fafc', face: 'Prompt', size: 14 }
+    }));
+
     const edges = [];
     const addedEdges = new Set();
 
-    // 1. สร้าง Node
-    notes.forEach(note => {
-        nodes.push({
-            id: note.id,
-            label: note.title || 'ไม่มีชื่อ',
-            shape: 'dot',
-            size: 20,
-            color: {
-                background: note.id === currentNoteId ? '#ec4899' : '#6366f1',
-                border: '#818cf8',
-                highlight: { background: '#f472b6', border: '#ffffff' }
-            },
-            font: { color: '#f8fafc', face: 'Prompt', size: 14 }
-        });
-    });
-
-    // 2. ค้นหา [[ชื่อโน๊ต]] เพื่อสร้างเส้นเชื่อม (Edges)
-    notes.forEach(sourceNote => {
-        if (!sourceNote.content) return;
-        const regex = /\[\[(.*?)\]\]/g;
-        let match;
-        
-        while ((match = regex.exec(sourceNote.content)) !== null) {
-            const targetTitle = match[1].trim().toLowerCase();
-            const targetNote = notes.find(n => n.title.trim().toLowerCase() === targetTitle);
-
-            if (targetNote && targetNote.id !== sourceNote.id) {
-                const edgeKey = `${sourceNote.id}->${targetNote.id}`;
-                if (!addedEdges.has(edgeKey)) {
-                    addedEdges.add(edgeKey);
+    notes.forEach(source => {
+        const regex = /\[\[(.+?)\]\]/g;
+        let m;
+        while ((m = regex.exec(source.content || '')) !== null) {
+            const target = titleMap.get(normTitle(m[1]));
+            if (target && target.id !== source.id) {
+                const key = `${source.id}->${target.id}`;
+                if (!addedEdges.has(key)) {
+                    addedEdges.add(key);
                     edges.push({
-                        from: sourceNote.id,
-                        to: targetNote.id,
+                        from: source.id,
+                        to: target.id,
                         color: { color: '#06b6d4', highlight: '#a855f7' },
                         arrows: { to: { enabled: true, scaleFactor: 0.8 } },
                         width: 2
@@ -296,43 +295,34 @@ function generateBrainMap() {
         }
     });
 
-    const data = { 
-        nodes: new vis.DataSet(nodes), 
-        edges: new vis.DataSet(edges) 
-    };
+    console.log('Brain Map:', nodes.length, 'nodes,', edges.length, 'edges');
 
     const options = {
+        autoResize: true,
         physics: {
             enabled: true,
-            barnesHut: { 
-                gravitationalConstant: -2000, 
-                centralGravity: 0.3,
-                springLength: 120 
-            }
+            barnesHut: { gravitationalConstant: -2000, centralGravity: 0.3, springLength: 120 },
+            stabilization: { iterations: 150 }
         },
         interaction: { hover: true, zoomView: true, dragNodes: true }
     };
 
-    // สร้าง Network ใหม่
-    networkInstance = new vis.Network(container, data, options);
+    networkInstance = new vis.Network(
+        container,
+        { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) },
+        options
+    );
 
-    // ปรับมุมมองให้อยู่ตรงกลางอัตโนมัติเมื่อ Render เสร็จ
-    setTimeout(() => {
-        if (networkInstance) {
-            networkInstance.redraw();
-            networkInstance.fit();
-        }
-    }, 150);
+    networkInstance.once('stabilizationIterationsDone', () => {
+        networkInstance.fit({ animation: false });
+    });
 
-    // เมื่อคลิกจุด Node บน Graph Map ให้กระโดดเปิดโน๊ตนั้นทันที
-    networkInstance.on("click", function (params) {
+    networkInstance.on('click', params => {
         if (params.nodes.length > 0) {
-            const clickedNoteId = params.nodes[0];
             saveCurrentNote();
-            loadNote(clickedNoteId);
+            loadNote(params.nodes[0]);
             renderNoteLists();
-            const mapModal = document.getElementById('map-modal');
-            if (mapModal) mapModal.classList.remove('active');
+            document.getElementById('map-modal')?.classList.remove('active');
         }
     });
 }
