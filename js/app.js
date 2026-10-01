@@ -17,7 +17,10 @@ function escapeHtml(s) {
   div.textContent = s;
   return div.innerHTML;
 }
-
+function formatDisplayDate(s) {
+  const [y, m, d] = s.split("-");
+  return `${d}-${m}-${y}`;
+}
 function refreshTable() {
   const groups = listItems(currentFilter);
   const container = document.getElementById("tableContainer");
@@ -28,7 +31,7 @@ function refreshTable() {
   for (const group of groups) {
     const wrap = document.createElement("div");
     wrap.className = "day-group";
-    wrap.innerHTML = `<h2>${group.date}</h2>`;
+    wrap.innerHTML = `<h2>${formatDisplayDate(group.date)}</h2>`;
     const table = document.createElement("table");
     table.innerHTML = `
       <thead>

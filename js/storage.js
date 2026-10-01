@@ -19,7 +19,8 @@ function dateToLocalStr(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${day}-${m}-${y}`;
+  // return `${day}-${m}-${y}`;
+  return `${y}-${m}-${day}`;
 }
 
 function todayStr() {
@@ -164,7 +165,19 @@ function autocompleteNames(query) {
     .sort()
     .slice(0, 15);
 }
-
+function migrateDates() {
+  const items = getAllItems();
+  let changed = false;
+  for (const item of items) {
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(item.date);
+    if (m) {
+      item.date = `${m[3]}-${m[2]}-${m[1]}`;
+      changed = true;
+    }
+  }
+  if (changed) saveAllItems(items);
+}
+migrateDates();
 function summary() {
   const items = getAllItems();
   const totalItems = items.length;
@@ -192,4 +205,5 @@ function importBackup(jsonText) {
   const data = JSON.parse(jsonText);
   if (!Array.isArray(data.items)) throw new Error("ไฟล์สำรองไม่ถูกต้อง");
   saveAllItems(data.items);
+  migrateDates();
 }
