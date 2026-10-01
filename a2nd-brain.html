@@ -23,13 +23,13 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css"
     />
     <!-- CodeMirror JS Core & Markdown Mode -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script> -->
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script> -->
 
     <!-- Vim Binding JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/keymap/vim.min.js"></script>
     <!--  QRCode & Vis.js Graph Libraries -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <!--zip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -385,24 +385,6 @@
     </footer>
 
     <script src="js/a2nd-brain.js"></script>
-    <script>
-      // เปลี่ยน textarea เดิมเป็น CodeMirror
-      var editor = CodeMirror.fromTextArea(
-        document.getElementById("note-editor"),
-        {
-          lineNumbers: true, // แสดงเลขบรรทัด
-          mode: "markdown", // รองรับการไฮไลต์ Markdown
-          keyMap: "vim", // เปิดใช้งาน Vim Keybindings
-          theme: "default", // หรือเปลี่ยนเป็น "monokai" ตามต้องการ
-          lineWrapping: true, // ตัดบรรทัดอัตโนมัติเมื่อข้อความยาวเกินหน้าจอ
-        },
-      );
-
-      // ซิงค์ข้อมูลใน CodeMirror กลับเข้า textarea เดิมอัตโนมัติเมื่อมีการแก้ไข
-      // (ช่วยให้ฟังก์ชันเดิมที่ดึงค่าจาก textarea ไปใช้งาน ไม่ได้รับผลกระทบ)
-      editor.on("change", function () {
-        editor.save();
-      });
-    </script>
+    
   </body>
 </html>
