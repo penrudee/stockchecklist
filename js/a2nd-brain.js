@@ -133,7 +133,7 @@ function initEditor() {
   const Vim = CodeMirror.Vim;
   Vim.defineEx("write", "w", () => saveCurrentNote()); // :w  บันทึก
   Vim.defineEx("preview", "prev", () => btnPreview.click()); // :prev  ไปโหมดแสดงผล
-  Vim.defineEx("map_view", "brain", () =>
+  Vim.defineEx("brain", "brain", () =>
     document.getElementById("sidebar-map-btn")?.click(),
   ); // :brain  เปิด Brain Map
   Vim.map("jj", "<Esc>", "insert"); // jj ออกจาก insert
