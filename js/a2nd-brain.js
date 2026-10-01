@@ -573,3 +573,78 @@ const closeQrBtn = document.getElementById('close-qr-btn');
         });
     }
 }
+// ==========================================
+// EDITOR ABSTRACTION (CodeMirror + Vim, fallback เป็น textarea)
+// ==========================================
+let cm = null;
+const getContent = () => (cm ? cm.getValue() : noteEditor.value);
+const setContent = v => {
+    if (cm) { cm.setValue(v); cm.clearHistory(); } // clearHistory กัน undo ข้ามโน๊ต
+    else noteEditor.value = v;
+};
+const editorEl = () => (cm ? cm.getWrapperElement() : noteEditor);
+
+function initEditor() {
+    if (typeof CodeMirror === 'undefined') {
+        console.warn('CodeMirror ไม่โหลด ใช้ textarea ปกติแทน');
+        return;
+    }
+    const vimOn = localStorage.getItem('a2ndbrain_vim') !== 'off';
+
+    cm = CodeMirror.fromTextArea(noteEditor, {
+        mode: 'markdown',
+        theme: 'monokai',
+        lineWrapping: true,
+        lineNumbers: false,
+        matchBrackets: true,
+        showCursorWhenSelecting: true,
+        keyMap: vimOn ? 'vim' : 'default',
+        placeholder: noteEditor.placeholder
+    });
+
+    const vimToggle = document.getElementById('vim-toggle');
+    const modeBadge = document.getElementById('vim-mode');
+
+    const applyVimUI = on => {
+        if (vimToggle) {
+            vimToggle.textContent = on ? 'Vim: ON' : 'Vim: OFF';
+            vimToggle.classList.toggle('active', on);
+        }
+        if (modeBadge) modeBadge.classList.toggle('off', !on);
+        if (on && modeBadge) { modeBadge.textContent = 'NORMAL'; modeBadge.className = 'vim-mode-badge'; }
+    };
+    applyVimUI(vimOn);
+
+    if (vimToggle) {
+        vimToggle.addEventListener('click', () => {
+            const on = cm.getOption('keyMap') !== 'vim';
+            cm.setOption('keyMap', on ? 'vim' : 'default');
+            localStorage.setItem('a2ndbrain_vim', on ? 'on' : 'off');
+            applyVimUI(on);
+            cm.focus();
+        });
+    }
+
+    // แสดงโหมด Vim บนป้าย
+    cm.on('vim-mode-change', e => {
+        if (!modeBadge) return;
+        const mode = e.mode + (e.subMode ? ` (${e.subMode})` : '');
+        modeBadge.textContent = mode.toUpperCase();
+        modeBadge.className = `vim-mode-badge ${e.mode}`;
+    });
+
+    // ----- Ex commands & mapping -----
+    const Vim = CodeMirror.Vim;
+    Vim.defineEx('write', 'w', () => saveCurrentNote());        // :w  บันทึก
+    Vim.defineEx('preview', 'prev', () => btnPreview.click());  // :prev  ไปโหมดแสดงผล
+    Vim.defineEx('map_view', 'brain', () =>
+        document.getElementById('sidebar-map-btn')?.click());   // :brain  เปิด Brain Map
+    Vim.map('jj', '<Esc>', 'insert');                           // jj ออกจาก insert
+
+    // ----- เปลี่ยนข้อความ -> auto save + preview (แทน event 'input' เดิม) -----
+    cm.on('change', (inst, change) => {
+        if (change.origin === 'setValue') return; // ข้ามตอนโหลดโน๊ต ไม่ให้ trigger save
+        saveCurrentNote();
+        renderPreview();
+    });
+}

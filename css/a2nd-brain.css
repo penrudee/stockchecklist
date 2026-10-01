@@ -631,3 +631,35 @@ textarea.editor-textarea {
         display: none;            /* เหลือแค่ไอคอนลูกศร */
     }
 }
+/* CodeMirror ให้กลมกลืนกับธีมเดิม */
+.CodeMirror {
+    height: 100%;
+    background: transparent;
+    color: var(--text-main);
+    font-family: "Sarabun", "Prompt", monospace;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+.CodeMirror-gutters { background: transparent; border: none; }
+.CodeMirror-cursor { border-left: 2px solid var(--accent-cyan); }
+.cm-fat-cursor .CodeMirror-cursor { background: rgba(6, 182, 212, 0.6); border: none; width: 0.6em !important; }
+.CodeMirror-selected { background: rgba(99, 102, 241, 0.35) !important; }
+.CodeMirror-dialog {
+    background: var(--sidebar-bg);
+    color: var(--text-main);
+    border-top: 1px solid var(--border-color);
+}
+.CodeMirror-dialog input { background: transparent; color: var(--text-main); border: none; outline: none; }
+
+.vim-mode-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    white-space: nowrap;
+}
+.vim-mode-badge.insert { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.vim-mode-badge.visual { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+.vim-mode-badge.off { display: none; }

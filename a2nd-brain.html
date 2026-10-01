@@ -22,11 +22,24 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css"
     />
-    <!-- CodeMirror JS Core & Markdown Mode -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script> -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css"
+    />
 
-    <!-- Vim Binding JS -->
+    <!-- CodeMirror Core + Markdown mode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/meta.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/mode/overlay.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+
+    <!-- Addons ที่ Vim ใช้ (ช่อง :command และ /search) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+
+    <!-- Vim Binding (ต้องโหลดหลัง core) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/keymap/vim.min.js"></script>
     <!--  QRCode & Vis.js Graph Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -210,6 +223,10 @@
             </select>
 
             <div style="display: flex; align-items: center; gap: 0.5rem">
+              <button class="toggle-btn" id="vim-toggle" title="เปิด/ปิด Vim">
+                Vim: ON
+              </button>
+              <span class="vim-mode-badge" id="vim-mode">NORMAL</span>
               <div class="toggle-group">
                 <button class="toggle-btn active" id="btn-mode-write">
                   เขียน
@@ -385,6 +402,5 @@
     </footer>
 
     <script src="js/a2nd-brain.js"></script>
-    
   </body>
 </html>
