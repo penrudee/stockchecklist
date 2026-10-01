@@ -1,230 +1,408 @@
 <!doctype html>
 <html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A 2nd Brain - Stocklist</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A 2nd Brain - Stocklist</title>
+    <!-- Fonts & External Libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/a2nd-brain.css" />
+    <!-- CodeMirror CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css"
+    />
+    <!-- CodeMirror JS Core & Markdown Mode -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
 
-  <!-- Fonts & External Libraries -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="css/a2nd-brain.css">
-  <!--  -->
-  <!-- Marked Markdown, QRCode & Vis.js Graph Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <!--zip -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-</head>
+    <!-- Vim Binding JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/keymap/vim.min.js"></script>
+    <!--  QRCode & Vis.js Graph Libraries -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!--zip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  </head>
 
-<body>
-  <header>
-    <div class="header-left">
-      <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
-        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-      <span class="brand-title">A 2nd Brain</span>
-    </div>
-
-    <div class="header-right">
-      <div class="autosave-status">
-        <span class="status-dot" id="save-dot"></span>
-        <span id="save-text">บันทึกแล้ว</span>
+  <body>
+    <header>
+      <div class="header-left">
+        <button class="icon-btn" id="menu-toggle" aria-label="Toggle Sidebar">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+        <span class="brand-title">A 2nd Brain</span>
       </div>
 
-      <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-      </button>
+      <div class="header-right">
+        <div class="autosave-status">
+          <span class="status-dot" id="save-dot"></span>
+          <span id="save-text">บันทึกแล้ว</span>
+        </div>
 
-      <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z" />
-        </svg>
-      </button>
-    </div>
-  </header>
+        <button class="icon-btn" id="sync-btn" title="ซิงค์ข้อมูลก้บ Cloud">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </button>
 
-  <div class="app-container">
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- Sidebar Navigation Drawer -->
-    <aside id="sidebar">
-      <div class="sidebar-header">
-        <span style="font-weight: 600; font-size: 0.95rem">คลังความคิด (Folders)</span>
-        <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        <button class="icon-btn" id="qr-btn" title="โอนย้ายข้อมูลผ่าน QR Code">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v1m6 11h2m-6 0h-2v4m0-4v-3m-6 3h2m0 0h2m-4 0v4m0 4h10M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6z"
+            />
           </svg>
         </button>
       </div>
+    </header>
 
-      <!-- ลิงก์เข้าดู Brain Map บน Sidebar -->
-      <button class="sidebar-map-link" id="sidebar-map-btn">
-        <span>🧠</span>
-        <span>Brain Map (Graph View)</span>
-      </button>
+    <div class="app-container">
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-      <div class="folders-container">
-        <div class="folder-group">
-          <div class="folder-title">
-            <span>หมวดหมู่งาน</span>
-          </div>
-
-          <div class="folder-item">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <span class="folder-badge" style="background-color: var(--badge-urgent)"></span>
-              <span>Projects</span>
-            </div>
-          </div>
-          <div class="notes-list" id="list-urgent"></div>
-
-          <div class="folder-item">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <span class="folder-badge" style="background-color: var(--badge-longterm)"></span>
-              <span>Areas</span>
-            </div>
-          </div>
-          <div class="notes-list" id="list-longterm"></div>
-
-          <div class="folder-item">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <span class="folder-badge" style="background-color: var(--badge-archive)"></span>
-              <span>Resources</span>
-            </div>
-          </div>
-          <div class="notes-list" id="list-resources"></div>
-
-          <div class="folder-item">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <span class="folder-badge" style="background-color: var(--badge-completed)"></span>
-              <span>Archive</span>
-            </div>
-          </div>
-          <div class="notes-list" id="list-completed"></div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Workspace Main View -->
-    <main>
-      <div class="editor-toolbar">
-        <div class="toolbar-top">
-          <input type="text" id="note-title" class="title-input" placeholder="หัวข้อโน๊ต..." />
+      <!-- Sidebar Navigation Drawer -->
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <span style="font-weight: 600; font-size: 0.95rem"
+            >คลังความคิด (Folders)</span
+          >
+          <button class="icon-btn" id="new-note-btn" title="สร้างโน๊ตใหม่">
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
         </div>
 
-        <div class="toolbar-bottom">
-          <select id="folder-select" class="folder-select" title="ย้ายโฟลเดอร์">
-            <option value="urgent">🔴 Projects</option>
-            <option value="longterm">🟡 Areas</option>
-            <option value="resources">🔵 Resources</option>
-            <option value="completed">🟢 Archive</option>
-          </select>
+        <!-- ลิงก์เข้าดู Brain Map บน Sidebar -->
+        <button class="sidebar-map-link" id="sidebar-map-btn">
+          <span>🧠</span>
+          <span>Brain Map (Graph View)</span>
+        </button>
 
-          <div style="display: flex; align-items: center; gap: 0.5rem">
-            <div class="toggle-group">
-              <button class="toggle-btn active" id="btn-mode-write">
-                เขียน
+        <div class="folders-container">
+          <div class="folder-group">
+            <div class="folder-title">
+              <span>หมวดหมู่งาน</span>
+            </div>
+
+            <div class="folder-item">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span
+                  class="folder-badge"
+                  style="background-color: var(--badge-urgent)"
+                ></span>
+                <span>Projects</span>
+              </div>
+            </div>
+            <div class="notes-list" id="list-urgent"></div>
+
+            <div class="folder-item">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span
+                  class="folder-badge"
+                  style="background-color: var(--badge-longterm)"
+                ></span>
+                <span>Areas</span>
+              </div>
+            </div>
+            <div class="notes-list" id="list-longterm"></div>
+
+            <div class="folder-item">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span
+                  class="folder-badge"
+                  style="background-color: var(--badge-archive)"
+                ></span>
+                <span>Resources</span>
+              </div>
+            </div>
+            <div class="notes-list" id="list-resources"></div>
+
+            <div class="folder-item">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span
+                  class="folder-badge"
+                  style="background-color: var(--badge-completed)"
+                ></span>
+                <span>Archive</span>
+              </div>
+            </div>
+            <div class="notes-list" id="list-completed"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Workspace Main View -->
+      <main>
+        <div class="editor-toolbar">
+          <div class="toolbar-top">
+            <input
+              type="text"
+              id="note-title"
+              class="title-input"
+              placeholder="หัวข้อโน๊ต..."
+            />
+          </div>
+
+          <div class="toolbar-bottom">
+            <select
+              id="folder-select"
+              class="folder-select"
+              title="ย้ายโฟลเดอร์"
+            >
+              <option value="urgent">🔴 Projects</option>
+              <option value="longterm">🟡 Areas</option>
+              <option value="resources">🔵 Resources</option>
+              <option value="completed">🟢 Archive</option>
+            </select>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+              <div class="toggle-group">
+                <button class="toggle-btn active" id="btn-mode-write">
+                  เขียน
+                </button>
+                <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
+              </div>
+
+              <button
+                class="icon-btn danger"
+                id="delete-note-btn"
+                title="ลบโน๊ตนี้"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
               </button>
-              <button class="toggle-btn" id="btn-mode-preview">แสดงผล</button>
             </div>
-
-            <button class="icon-btn danger" id="delete-note-btn" title="ลบโน๊ตนี้">
-              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
           </div>
         </div>
-      </div>
 
-      <div class="workspace">
-        <textarea id="note-editor" class="editor-textarea"
-          placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"></textarea>
-        <div id="note-preview" class="preview-container"></div>
+        <div class="workspace">
+          <textarea
+            id="note-editor"
+            class="editor-textarea"
+            placeholder="พิมพ์ข้อความที่นี่... รองรับ Markdown และ Wiki Links เช่น [[ชื่อโน๊ต]]"
+          ></textarea>
+          <div id="note-preview" class="preview-container"></div>
 
-        <div class="backlinks-section" id="backlinks-container" style="display: none">
-          <div class="backlinks-title">
-            🔗 ย้อนกลับมาเชื่อมโยงโน๊ตนี้ (Backlinks)
+          <div
+            class="backlinks-section"
+            id="backlinks-container"
+            style="display: none"
+          >
+            <div class="backlinks-title">
+              🔗 ย้อนกลับมาเชื่อมโยงโน๊ตนี้ (Backlinks)
+            </div>
+            <div id="backlinks-list"></div>
           </div>
-          <div id="backlinks-list"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Backup / Import Modal -->
+    <div class="modal" id="qr-modal">
+      <div class="modal-content">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">
+          สำรองและนำเข้าข้อมูล
+        </h3>
+        <p
+          style="
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+          "
+        >
+          ดาวน์โหลดโน๊ตทั้งหมดเป็นไฟล์ ZIP เพื่อเก็บสำรอง
+          หรือนำไปเปิดบนอุปกรณ์อื่น
+        </p>
+
+        <button
+          class="toggle-btn active"
+          id="export-zip-btn"
+          style="width: 100%; padding: 12px"
+        >
+          ⬇️ ดาวน์โหลด ZIP สำรองข้อมูล
+        </button>
+
+        <button
+          class="toggle-btn"
+          id="import-zip-btn"
+          style="
+            width: 100%;
+            padding: 12px;
+            margin-top: 0.75rem;
+            border: 1px solid var(--border-color);
+          "
+        >
+          ⬆️ นำเข้าข้อมูลจาก ZIP
+        </button>
+        <input
+          type="file"
+          id="import-zip-file"
+          accept=".zip,application/zip"
+          hidden
+        />
+
+        <p
+          id="backup-message"
+          style="
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.85rem;
+            min-height: 1.2em;
+          "
+        ></p>
+
+        <button
+          class="toggle-btn"
+          style="width: 100%; margin-top: 0.5rem; padding: 10px"
+          id="close-qr-btn"
+        >
+          ปิด
+        </button>
+      </div>
+    </div>
+
+    <!-- Brain Map Fullscreen View Modal -->
+    <!-- Brain Map Fullscreen View Modal -->
+    <div class="modal" id="map-modal">
+      <div class="modal-content map-modal-content">
+        <!-- ส่วนหัว -->
+        <div class="map-header">
+          <h3 style="font-size: 1.1rem">🧠 Knowledge Graph / Brain Map</h3>
+          <button class="icon-btn" id="close-map-btn" style="font-size: 1.2rem">
+            ✕
+          </button>
+        </div>
+
+        <!-- พื้นที่กราฟ -->
+        <div class="graph-wrapper">
+          <div id="graph-container"></div>
         </div>
       </div>
-    </main>
-  </div>
-
-  <!-- Backup / Import Modal -->
-  <div class="modal" id="qr-modal">
-    <div class="modal-content">
-      <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">สำรองและนำเข้าข้อมูล</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem">
-        ดาวน์โหลดโน๊ตทั้งหมดเป็นไฟล์ ZIP เพื่อเก็บสำรอง หรือนำไปเปิดบนอุปกรณ์อื่น
-      </p>
-
-      <button class="toggle-btn active" id="export-zip-btn" style="width: 100%; padding: 12px">
-        ⬇️ ดาวน์โหลด ZIP สำรองข้อมูล
-      </button>
-
-      <button class="toggle-btn" id="import-zip-btn"
-        style="width: 100%; padding: 12px; margin-top: 0.75rem; border: 1px solid var(--border-color)">
-        ⬆️ นำเข้าข้อมูลจาก ZIP
-      </button>
-      <input type="file" id="import-zip-file" accept=".zip,application/zip" hidden />
-
-      <p id="backup-message"
-        style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.85rem; min-height: 1.2em"></p>
-
-      <button class="toggle-btn" style="width: 100%; margin-top: 0.5rem; padding: 10px" id="close-qr-btn">ปิด</button>
     </div>
-  </div>
-
-  <!-- Brain Map Fullscreen View Modal -->
-  <!-- Brain Map Fullscreen View Modal -->
-  <div class="modal" id="map-modal">
-    <div class="modal-content map-modal-content">
-
-      <!-- ส่วนหัว -->
-      <div class="map-header">
-        <h3 style="font-size: 1.1rem">🧠 Knowledge Graph / Brain Map</h3>
-        <button class="icon-btn" id="close-map-btn" style="font-size: 1.2rem">✕</button>
+    <!-- Footer Banner: Building a Second Brain Book Promotion -->
+    <footer class="book-promo-footer">
+      <div class="book-promo-container">
+        <div class="book-icon">📚</div>
+        <div class="book-info">
+          <span class="book-badge">แนะนำหนังสือ</span>
+          <p class="book-title">
+            Building a Second Brain: สร้างสมองที่สอง
+            เพื่อจัดระเบียบชีวิตและต่อยอดความคิด
+          </p>
+          <p class="book-author">
+            เขียนโดย <strong>Tiago Forte</strong> ผู้คิดค้นระบบ CODE Framework
+          </p>
+        </div>
+        <a
+          href="https://s.shopee.co.th/8AWT6912vc"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="book-buy-btn"
+        >
+          <span>สั่งซื้อ / อ่านเพิ่มเติม</span>
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
+          </svg>
+        </a>
       </div>
+    </footer>
 
-      <!-- พื้นที่กราฟ -->
-      <div class="graph-wrapper">
-        <div id="graph-container"></div>
-      </div>
+    <script src="js/a2nd-brain.js"></script>
+    <script>
+      // เปลี่ยน textarea เดิมเป็น CodeMirror
+      var editor = CodeMirror.fromTextArea(
+        document.getElementById("myEditor"),
+        {
+          lineNumbers: true, // แสดงเลขบรรทัด
+          mode: "markdown", // รองรับการไฮไลต์ Markdown
+          keyMap: "vim", // เปิดใช้งาน Vim Keybindings
+          theme: "default", // หรือเปลี่ยนเป็น "monokai" ตามต้องการ
+          lineWrapping: true, // ตัดบรรทัดอัตโนมัติเมื่อข้อความยาวเกินหน้าจอ
+        },
+      );
 
-    </div>
-  </div>
-  <!-- Footer Banner: Building a Second Brain Book Promotion -->
-  <footer class="book-promo-footer">
-    <div class="book-promo-container">
-      <div class="book-icon">📚</div>
-      <div class="book-info">
-        <span class="book-badge">แนะนำหนังสือ</span>
-        <p class="book-title">Building a Second Brain: สร้างสมองที่สอง เพื่อจัดระเบียบชีวิตและต่อยอดความคิด</p>
-        <p class="book-author">เขียนโดย <strong>Tiago Forte</strong> ผู้คิดค้นระบบ CODE Framework</p>
-      </div>
-      <a href="https://s.shopee.co.th/8AWT6912vc" target="_blank" rel="noopener noreferrer" class="book-buy-btn">
-        <span>สั่งซื้อ / อ่านเพิ่มเติม</span>
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-      </a>
-    </div>
-  </footer>
-
-  <script src="js/a2nd-brain.js"></script>
-</body>
-
+      // ซิงค์ข้อมูลใน CodeMirror กลับเข้า textarea เดิมอัตโนมัติเมื่อมีการแก้ไข
+      // (ช่วยให้ฟังก์ชันเดิมที่ดึงค่าจาก textarea ไปใช้งาน ไม่ได้รับผลกระทบ)
+      editor.on("change", function () {
+        editor.save();
+      });
+    </script>
+  </body>
 </html>
