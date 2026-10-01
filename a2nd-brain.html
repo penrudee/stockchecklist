@@ -46,6 +46,8 @@
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <!--zip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- DOMPurify จำเป็นมาก เพราะ Feed แสดงเนื้อหาจากคนอื่น กัน XSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
   </head>
 
   <body>
@@ -144,7 +146,9 @@
           <span>🧠</span>
           <span>Brain Map (Graph View)</span>
         </button>
-
+        <button class="sidebar-map-link" id="sidebar-feed-btn">
+          <span>📰</span><span>Feed (โพสต์สาธารณะ)</span>
+        </button>
         <div class="folders-container">
           <div class="folder-group">
             <div class="folder-title">
@@ -221,7 +225,14 @@
               <option value="resources">🔵 Resources</option>
               <option value="completed">🟢 Archive</option>
             </select>
-
+            <select
+              id="visibility-select"
+              class="folder-select"
+              title="การมองเห็น"
+            >
+              <option value="private">🔒 Private</option>
+              <option value="public">🌐 Public</option>
+            </select>
             <div style="display: flex; align-items: center; gap: 0.5rem">
               <button class="toggle-btn" id="vim-toggle" title="เปิด/ปิด Vim">
                 Vim: ON
@@ -279,6 +290,22 @@
         </div>
       </main>
     </div>
+    <section class="feed-view" id="feed-view">
+      <div class="feed-bar">
+        <h2>📰 Feed</h2>
+        <span class="vim-mode-badge" id="p2p-status">ออฟไลน์</span>
+        <button class="toggle-btn" id="p2p-settings-btn">⚙️ P2P</button>
+        <button class="toggle-btn active" id="feed-close-btn">
+          ← กลับไปโน๊ต
+        </button>
+      </div>
+      <input
+        id="feed-search"
+        class="folder-select"
+        placeholder="ค้นหาโพสต์..."
+      />
+      <div id="feed-list"></div>
+    </section>
 
     <!-- Backup / Import Modal -->
     <div class="modal" id="qr-modal">
@@ -401,6 +428,41 @@
       </div>
     </footer>
 
+    <div class="modal" id="p2p-modal">
+      <div class="modal-content">
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem">
+          ⚙️ ตั้งค่า P2P
+        </h3>
+        <input
+          id="p2p-name"
+          class="folder-select"
+          style="width: 100%; margin-bottom: 0.5rem"
+          placeholder="ชื่อที่แสดงในโพสต์"
+        />
+        <input
+          id="p2p-relay"
+          class="folder-select"
+          style="width: 100%"
+          placeholder="/ip4/1.2.3.4/tcp/9090/ws/p2p/12D3Koo..."
+        />
+        <button
+          class="toggle-btn active"
+          id="p2p-connect-btn"
+          style="width: 100%; padding: 10px; margin-top: 0.75rem"
+        >
+          เชื่อมต่อ
+        </button>
+        <button
+          class="toggle-btn"
+          id="p2p-close-btn"
+          style="width: 100%; padding: 10px; margin-top: 0.5rem"
+        >
+          ปิด
+        </button>
+      </div>
+    </div>
+
     <script src="js/a2nd-brain.js"></script>
+    <script type="module" src="js/a2nd-p2p.js"></script>
   </body>
 </html>

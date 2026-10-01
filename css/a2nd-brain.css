@@ -663,3 +663,19 @@ textarea.editor-textarea {
 .vim-mode-badge.insert { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
 .vim-mode-badge.visual { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
 .vim-mode-badge.off { display: none; }
+
+
+.feed-view { display: none; flex: 1; flex-direction: column; gap: .75rem; padding: 1rem; overflow-y: auto; background: var(--bg-color); }
+.app-container.show-feed .feed-view { display: flex; }
+.app-container.show-feed main { display: none; }
+.feed-bar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.feed-bar h2 { font-size: 1.1rem; margin-right: auto; }
+.feed-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 1rem; }
+.feed-card-head h3 { font-size: 1rem; }
+.feed-meta { font-size: .75rem; color: var(--text-muted); }
+.feed-body { margin-top: .6rem; line-height: 1.7; word-break: break-word; }
+.feed-body.collapsed { max-height: 7.5em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
+.feed-body ul, .feed-body ol { padding-left: 1.5rem; }
+.feed-body a { color: var(--accent-cyan); }
+.feed-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+.feed-empty { color: var(--text-muted); text-align: center; padding: 2rem 0; }

@@ -53,7 +53,7 @@ const btnWrite = document.getElementById("btn-mode-write");
 const btnPreview = document.getElementById("btn-mode-preview");
 const saveDot = document.getElementById("save-dot");
 const saveText = document.getElementById("save-text");
-
+const visibilitySelect = document.getElementById("visibility-select");
 // ==========================================
 // 2. INITIALIZATION & UI RENDERING
 // ==========================================
@@ -194,6 +194,7 @@ function loadNote(id) {
   currentNoteId = id;
   noteTitleInput.value = note.title;
   folderSelect.value = note.folder || "urgent";
+  visibilitySelect.value = note.visibility || "private"; // default = private
   // noteEditor.value = note.content;
   setContent(note.content);
   renderPreview();
@@ -208,9 +209,11 @@ function saveCurrentNote() {
   if (note) {
     note.title = noteTitleInput.value;
     note.folder = folderSelect.value;
+    note.visibility = visibilitySelect.value;
     // note.content = noteEditor.value;
     note.content = getContent();
     localStorage.setItem("a2ndbrain_notes", JSON.stringify(notes));
+    window.A2P2P?.sync(note);
     triggerSaveStatus();
     renderNoteLists();
   }
@@ -221,6 +224,7 @@ function deleteCurrentNote() {
   if (!note) return;
 
   if (confirm(`คุณต้องการลบโน๊ต "${note.title || "ไม่มีชื่อ"}" ใช่หรือไม่?`)) {
+    window.A2P2P?.unshare(currentNoteId);
     notes = notes.filter((n) => n.id !== currentNoteId);
     localStorage.setItem("a2ndbrain_notes", JSON.stringify(notes));
 
@@ -241,6 +245,7 @@ function createNewNote(customTitle = "") {
     title: customTitle || "โน๊ตใหม่ไม่มีชื่อ",
     folder: "urgent",
     content: "",
+    visibility: "private",
   };
   notes.push(newNote);
   saveCurrentNote();
@@ -435,6 +440,8 @@ function setupEventListeners() {
 
   if (folderSelect)
     folderSelect.addEventListener("change", () => saveCurrentNote());
+  if (visibilitySelect)
+    visibilitySelect.addEventListener("change", () => saveCurrentNote());
   if (noteTitleInput)
     noteTitleInput.addEventListener("input", () => saveCurrentNote());
   if (noteEditor && !cm) {
@@ -724,3 +731,9 @@ function setupEventListeners() {
     });
   }
 }
+window.importFeedPost = function (title, content) {
+  const id = Date.now().toString();
+  notes.push({ id, title, folder: "resources", visibility: "private", content });
+  localStorage.setItem("a2ndbrain_notes", JSON.stringify(notes));
+  renderNoteLists();
+};
