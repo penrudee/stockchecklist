@@ -233,7 +233,7 @@
               <option value="private">🔒 Private</option>
               <option value="public">🌐 Public</option>
             </select>
-            <div style="display: flex; align-items: center; gap: 0.5rem">
+            <div class="toolbar-actions">
               <button class="toggle-btn" id="vim-toggle" title="เปิด/ปิด Vim">
                 Vim: ON
               </button>
@@ -465,5 +465,93 @@
 
     <script src="js/a2nd-brain.js"></script>
     <script type="module" src="js/a2nd-p2p.js"></script>
+    <!-- แถบปุ่มช่วย Vim สำหรับมือถือ (ESC) -->
+    <div class="vim-keybar" id="vim-keybar" aria-label="Vim keys">
+      <button type="button" class="vim-key-btn" id="vim-esc-btn" aria-label="Escape">ESC</button>
+    </div>
+
+    <script>
+      (function () {
+        var bar = document.getElementById("vim-keybar");
+        var escBtn = document.getElementById("vim-esc-btn");
+        if (!bar || !escBtn) return;
+
+        function getCM() {
+          var el = document.querySelector(".CodeMirror");
+          return el && el.CodeMirror;
+        }
+        function vimActive(cm) {
+          return cm && String(cm.getOption("keyMap")).indexOf("vim") === 0;
+        }
+        function editorHasFocus() {
+          var ae = document.activeElement;
+          return !!(ae && ae.closest && ae.closest(".CodeMirror"));
+        }
+
+        // แสดงแถบเมื่อกำลังพิมพ์ในตัวแก้ไข และ Vim เปิดอยู่เท่านั้น
+        function refresh() {
+          var show = editorHasFocus() && vimActive(getCM());
+          bar.classList.toggle("visible", show);
+          document.body.classList.toggle("vim-keybar-on", show);
+          position();
+        }
+
+        // ยกแถบให้ลอยเหนือคีย์บอร์ดมือถือ
+        function position() {
+          var vv = window.visualViewport;
+          if (!vv) return;
+          var offset = window.innerHeight - vv.height - vv.offsetTop;
+          bar.style.transform = "translateY(" + -Math.max(0, offset) + "px)";
+        }
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", position);
+          window.visualViewport.addEventListener("scroll", position);
+        }
+
+        document.addEventListener("focusin", refresh);
+        document.addEventListener("focusout", function () {
+          setTimeout(refresh, 200);
+        });
+
+        function pressEsc() {
+          var cm = getCM();
+          if (!cm) return;
+          var ae = document.activeElement;
+
+          // ถ้าเปิดช่อง :command หรือ /search อยู่ ให้ส่ง Esc ไปปิดช่องนั้น
+          if (ae && ae.tagName === "INPUT" && ae.closest(".CodeMirror-dialog")) {
+            ae.dispatchEvent(
+              new KeyboardEvent("keydown", {
+                key: "Escape",
+                code: "Escape",
+                keyCode: 27,
+                which: 27,
+                bubbles: true,
+                cancelable: true,
+              }),
+            );
+            return;
+          }
+
+          if (window.CodeMirror && CodeMirror.Vim && vimActive(cm)) {
+            CodeMirror.Vim.handleKey(cm, "<Esc>", "user");
+          }
+          if (!cm.hasFocus()) cm.focus();
+        }
+
+        // ใช้ pointerdown + preventDefault เพื่อไม่ให้คีย์บอร์ดมือถือหุบ
+        escBtn.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          pressEsc();
+        });
+        escBtn.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+        });
+        // รองรับการกดผ่านคีย์บอร์ด (Enter/Space)
+        escBtn.addEventListener("click", function (e) {
+          if (e.detail === 0) pressEsc();
+        });
+      })();
+    </script>
   </body>
 </html>

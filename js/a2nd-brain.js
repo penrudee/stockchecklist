@@ -113,7 +113,7 @@ function initEditor() {
 
   if (vimToggle) {
     vimToggle.addEventListener("click", () => {
-      const on = cm.getOption("keyMap") !== "vim";
+      const on = String(cm.getOption("keyMap")).indexOf("vim") !== 0; // ใน Insert mode keyMap คือ "vim-insert"
       cm.setOption("keyMap", on ? "vim" : "default");
       localStorage.setItem("a2ndbrain_vim", on ? "on" : "off");
       applyVimUI(on);

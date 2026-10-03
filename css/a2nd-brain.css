@@ -679,3 +679,96 @@ textarea.editor-textarea {
 .feed-body a { color: var(--accent-cyan); }
 .feed-actions { display: flex; gap: .5rem; margin-top: .6rem; }
 .feed-empty { color: var(--text-muted); text-align: center; padding: 2rem 0; }
+
+/* ===== Toolbar bottom: ไม่ให้ปุ่มล้นจอ ===== */
+.toolbar-bottom {
+    max-width: 100%;
+}
+
+.toolbar-bottom .folder-select {
+    min-width: 0;
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toolbar-actions .toggle-group {
+    flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+    .editor-toolbar {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .toolbar-bottom {
+        flex-wrap: wrap;           /* ขึ้นบรรทัดใหม่แทนการล้นจอ */
+        row-gap: 0.5rem;
+    }
+
+    .toolbar-bottom .folder-select {
+        flex: 1 1 0;               /* dropdown สองอันแบ่งความกว้างเท่ากัน */
+    }
+
+    .toolbar-actions {
+        flex: 1 1 100%;            /* กลุ่มปุ่มลงมาอยู่บรรทัดที่สอง */
+        flex-wrap: wrap;
+        justify-content: space-between;
+        row-gap: 0.4rem;
+    }
+
+    .toolbar-actions .toggle-btn {
+        padding: 6px 10px;
+    }
+}
+
+/* ===== แถบปุ่ม ESC สำหรับ Vim บนมือถือ ===== */
+.vim-keybar {
+    display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .vim-keybar.visible {
+        display: flex;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 200;
+        gap: 0.5rem;
+        padding: 0.4rem 0.6rem;
+        background: var(--sidebar-bg);
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* เผื่อพื้นที่ไม่ให้แถบบังบรรทัดสุดท้าย */
+    body.vim-keybar-on .workspace {
+        padding-bottom: 3.5rem;
+    }
+}
+
+.vim-key-btn {
+    min-width: 64px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.vim-key-btn:active {
+    background: var(--accent-purple);
+    color: #ffffff;
+}
